@@ -74,6 +74,5 @@ dependencies {
 
     // Ktor Client
     implementation "io.ktor:ktor-client-android:$ktor_version"
-    implementation "io.ktor:ktor-client-jackson:$ktor_version"
-    implementation "com.fasterxml.jackson.module:jackson-module-kotlin:$jackson_version"
+    implementation "io.ktor:ktor-client-gson:$ktor_version"
 }

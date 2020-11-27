@@ -18,7 +18,7 @@ class LoginScreenState(private val loginService: LoginService) {
     fun login() = GlobalScope.launch(Dispatchers.Main) {
         state = LoginUIState.Loading
         state = try {
-            email = loginService.login(email, password)
+            loginService.login(email, password)
             LoginUIState.Success
         } catch (t: PenguBankAPIException) {
             LoginUIState.Error(t.message)

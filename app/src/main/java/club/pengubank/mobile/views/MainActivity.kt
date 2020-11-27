@@ -39,16 +39,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-
-        val a: String = HttpClient {
-            install(JsonFeature) {
-                serializer = JacksonSerializer()
-            }
-            install(DefaultRequest) {
-                contentType(ContentType.Application.Json)
-            }
-        }.get<String>("http://191.168.1.43:8080")
-
         setContent {
             Scaffold(topBar = { topBar() }) {
                 MaterialTheme {
