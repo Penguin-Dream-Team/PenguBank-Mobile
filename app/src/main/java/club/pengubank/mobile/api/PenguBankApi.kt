@@ -5,25 +5,33 @@ import club.pengubank.mobile.data.User
 import club.pengubank.mobile.data.requests.LoginRequest
 import club.pengubank.mobile.errors.PenguBankAPIException
 import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.utils.Config
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.android.*
+import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.network.sockets.*
+import io.ktor.util.*
 import java.util.concurrent.TimeoutException
 
+@KtorExperimentalAPI
 class PenguBankApi(
     private val store: StoreState
 ) {
+
     companion object {
-        const val HOST = "192.168.1.43"
-        const val PORT = 8080
-        const val TIMEOUT_IN_SECONDS = 3
+        private val APIConfig = Config.load()
+        val PROTOCOL = APIConfig.protocol
+        val HOST = APIConfig.host
+        val PORT = APIConfig.port
+        val TIMEOUT = APIConfig.timeout
     }
 
-    private val api = HttpClient {
+    private val api = HttpClient(CIO) {
         install(JsonFeature) {
             serializer = GsonSerializer()
         }
@@ -34,7 +42,7 @@ class PenguBankApi(
         }
 
         install(HttpTimeout) {
-            requestTimeoutMillis = TIMEOUT_IN_SECONDS * 1000L
+            requestTimeoutMillis = TIMEOUT
         }
     }
 
@@ -45,14 +53,14 @@ class PenguBankApi(
 
     private suspend inline fun <reified T> get(path: String = "/"): T =
         try {
-            api.get(path = path) { addJWTTokenToRequest(headers) }
+            api.get(scheme = PROTOCOL, path = path) { addJWTTokenToRequest(headers) }
         } catch (e: Exception) {
             handleApiException(e) as T
         }
 
     private suspend inline fun <reified T> post(path: String, data: Any): T =
         try {
-            api.post(path = path, body = data) { addJWTTokenToRequest(headers) }
+            api.post(scheme = PROTOCOL, path = path, body = data) { addJWTTokenToRequest(headers) }
         } catch (e: Exception) {
             handleApiException(e) as T
         }
