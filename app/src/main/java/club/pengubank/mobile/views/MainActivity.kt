@@ -9,24 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.setContent
-import club.pengubank.mobile.api.PenguBankApi
 import club.pengubank.mobile.services.LoginService
 import club.pengubank.mobile.states.LoginScreenState
 import club.pengubank.mobile.states.StoreState
 import dagger.hilt.android.AndroidEntryPoint
-import io.ktor.client.*
-import io.ktor.client.features.*
-import io.ktor.client.features.get
-import io.ktor.client.features.json.*
-import io.ktor.client.request.*
-import io.ktor.http.*
 import javax.inject.Inject
-import kotlin.String as String
 
 @Composable
-fun topBar() {
-    TopAppBar(title = { Text("Pengubank") }, actions = {})
-}
+fun topBar() = TopAppBar(title = { Text("PenguBank") }, actions = {})
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {

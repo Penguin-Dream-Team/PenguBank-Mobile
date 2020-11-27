@@ -1,5 +1,6 @@
 package club.pengubank.mobile.api
 
+import club.pengubank.mobile.api.models.Response
 import club.pengubank.mobile.data.User
 import club.pengubank.mobile.data.requests.LoginRequest
 import club.pengubank.mobile.errors.PenguBankAPIException
@@ -37,25 +38,24 @@ class PenguBankApi(
         }
     }
 
-    suspend fun login(loginRequest: LoginRequest): Response.SuccessResponse<User> {
-        return post(LOGIN_ROUTE, loginRequest)
-    }
+    suspend fun login(loginRequest: LoginRequest): Response.SuccessResponse<User> =
+        post(Routes.LOGIN, loginRequest)
 
-    suspend fun dashboard(): Response.SuccessResponse<Any> {
-        return get("/dashboard")
-    }
+    suspend fun dashboard(): Response.SuccessResponse<Any> = get("/dashboard")
 
-    private suspend inline fun <reified T> get(path: String = "/"): T {
-        return try {
+    private suspend inline fun <reified T> get(path: String = "/"): T =
+        try {
             api.get(path = path) { addJWTTokenToRequest(headers) }
-        } catch (e: Exception) { handleApiException(e) as T }
-    }
+        } catch (e: Exception) {
+            handleApiException(e) as T
+        }
 
-    private suspend inline fun <reified T> post(path: String, data: Any): T {
-        return try {
+    private suspend inline fun <reified T> post(path: String, data: Any): T =
+        try {
             api.post(path = path, body = data) { addJWTTokenToRequest(headers) }
-        } catch (e: Exception) { handleApiException(e) as T }
-    }
+        } catch (e: Exception) {
+            handleApiException(e) as T
+        }
 
     private suspend fun handleApiException(e: Exception) {
         val err = when (e) {
@@ -75,8 +75,7 @@ class PenguBankApi(
     }
 
     private fun addJWTTokenToRequest(headers: HeadersBuilder) {
-        if (store.token.isNotBlank())
-            headers["Authorization"] = "Bearer ${store.token}"
+        if (store.token.isNotBlank()) headers["Authorization"] = "Bearer ${store.token}"
     }
 
 }
