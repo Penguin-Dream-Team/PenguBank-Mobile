@@ -8,4 +8,12 @@ import club.pengubank.mobile.data.User
 class StoreState {
     var token by mutableStateOf("")
     var user by mutableStateOf<User?>(null)
+    //var user by mutableStateOf<User?>(User(1, "a@b.c", "Today", false, 1))
+
+    fun logout() {
+        token = ""
+        user = null
+    }
+
+    fun isLoggedIn(): Boolean = token.isNotBlank() && user != null
 }

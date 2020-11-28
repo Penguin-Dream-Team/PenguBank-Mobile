@@ -2,21 +2,19 @@ package club.pengubank.mobile.views
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material.*
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Scaffold
 import androidx.compose.ui.platform.setContent
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
 import club.pengubank.mobile.services.LoginService
-import club.pengubank.mobile.states.LoginScreenState
 import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.views.components.TopBar
+import club.pengubank.mobile.views.dashboard.DashboardScreen
+import club.pengubank.mobile.views.login.LoginScreen
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
-
-@Composable
-fun topBar() = TopAppBar(title = { Text("PenguBank") }, actions = {})
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -30,42 +28,16 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            Scaffold(topBar = { topBar() }) {
-                MaterialTheme {
-                    LoginScreen(loginService, store)
+            val navController = rememberNavController()
+
+            MaterialTheme {
+                Scaffold(topBar = { TopBar(navController, store) }) {
+                    NavHost(navController = navController, startDestination = "login") {
+                        composable("login") { LoginScreen(navController, loginService) }
+                        composable("dashboard") { DashboardScreen(navController, store) }
+                    }
                 }
             }
         }
     }
-}
-
-@Composable
-fun LoginForm(loginState: LoginScreenState, store: StoreState) {
-    val uiState = loginState.state
-
-    if (uiState == LoginScreenState.LoginUIState.Success) {
-        Text(text = store.token)
-    } else {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            TextField(value = loginState.email, onValueChange = { loginState.email = it })
-            TextField(value = loginState.password, onValueChange = { loginState.password = it })
-            Button(
-                onClick = { loginState.login() },
-                enabled = uiState != LoginScreenState.LoginUIState.Loading
-            ) {
-                Text("Login")
-            }
-            if (uiState is LoginScreenState.LoginUIState.Error) {
-                Text(uiState.message)
-            }
-        }
-    }
-}
-
-@Composable
-fun LoginScreen(loginService: LoginService, store: StoreState) {
-    LoginForm(LoginScreenState(loginService), store)
 }

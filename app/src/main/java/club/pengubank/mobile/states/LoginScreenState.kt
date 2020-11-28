@@ -11,25 +11,25 @@ import kotlinx.coroutines.launch
 
 class LoginScreenState(private val loginService: LoginService) {
 
-    var state: LoginUIState by mutableStateOf(LoginUIState.Empty)
+    var state: LoginState by mutableStateOf(LoginState.Empty)
     var email: String by mutableStateOf("a@b.c")
     var password: String by mutableStateOf("password")
 
     fun login() = GlobalScope.launch(Dispatchers.Main) {
-        state = LoginUIState.Loading
+        state = LoginState.Loading
         state = try {
             loginService.login(email, password)
-            LoginUIState.Success
+            LoginState.Success
         } catch (t: PenguBankAPIException) {
-            LoginUIState.Error(t.message)
+            LoginState.Error(t.message)
         }
     }
 
 
-    sealed class LoginUIState {
-        object Success : LoginUIState()
-        data class Error(val message: String) : LoginUIState()
-        object Loading : LoginUIState()
-        object Empty : LoginUIState()
+    sealed class LoginState {
+        object Success : LoginState()
+        data class Error(val message: String) : LoginState()
+        object Loading : LoginState()
+        object Empty : LoginState()
     }
 }
