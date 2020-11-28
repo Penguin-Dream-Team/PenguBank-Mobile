@@ -19,21 +19,9 @@ import java.util.*
 fun DashboardScreen(navController: NavController, store: StoreState) {
     val storeState by remember { mutableStateOf(store) }
 
-    val noDelay = 0L
-    val timerTask = object : TimerTask() {
-        override fun run() {
-            storeState.validationCode = TOTPAuthenticator().calculateLastValidationCode("yBlDl1YEBUeCsA==".toByteArray())
-        }
-    }
-
-    storeState.validationCode = TOTPAuthenticator().calculateLastValidationCode("yBlDl1YEBUeCsA==".toByteArray())
-
     Column {
         UserInfo(storeState)
         TOTPSection(navController, storeState)
         TransactionSection(navController, storeState)
     }
-
-    val timer = Timer()
-    timer.schedule(timerTask, noDelay, TOTPConfig().timeStepSize.toMillis() * 1000L)
 }

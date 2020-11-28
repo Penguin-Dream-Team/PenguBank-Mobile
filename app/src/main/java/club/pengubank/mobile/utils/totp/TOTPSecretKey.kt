@@ -16,7 +16,7 @@ data class TOTPSecretKey(val value: ByteArray) {
         }
     }
 
-    override fun toString(): String = to(KeyRepresentation.BASE64)
+    override fun toString(): String = to(KeyRepresentation.BASE32)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
@@ -29,7 +29,7 @@ data class TOTPSecretKey(val value: ByteArray) {
     override fun hashCode(): Int = value.contentHashCode()
 
     companion object {
-        fun from(representation: KeyRepresentation = KeyRepresentation.BASE64, value: String): TOTPSecretKey {
+        fun from(representation: KeyRepresentation = KeyRepresentation.BASE32, value: String): TOTPSecretKey {
             return when (representation) {
                 KeyRepresentation.BASE32 -> TOTPSecretKey(Base32().decode(value))
                 KeyRepresentation.BASE64 -> TOTPSecretKey(Base64().decode(value))

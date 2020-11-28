@@ -1,5 +1,8 @@
 package club.pengubank.mobile.views.dashboard.partials.totp
 
+import android.os.Handler
+import android.os.Looper
+import androidx.compose.animation.animate
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -8,20 +11,63 @@ import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.inMilliseconds
 import androidx.compose.ui.unit.sp
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.utils.totp.TOTPAuthenticator
-import club.pengubank.mobile.utils.totp.TOTPConfig
+import club.pengubank.mobile.utils.totp.TOTPSecretKey
 import club.pengubank.mobile.views.components.IconButton
-import club.pengubank.mobile.views.dashboard.partials.TransactionSection
-import club.pengubank.mobile.views.dashboard.partials.UserInfo
+import java.time.Instant
 import java.util.*
+
+private fun genCode(): String {
+    val secretKey = TOTPSecretKey.from(value = "ZJWLNVQEBJKX5OWP")
+    return buildString {
+        append(
+            TOTPAuthenticator().calculateLastValidationCode(secretKey.value).toString()
+            .padStart(6, '0')
+        ).insert(3, ' ')
+    }
+}
+
+val TIME_WINDOW = Duration(seconds = 30).inMilliseconds()
+
+class CodeTask(
+    private val mainHandler: Handler,
+    private val progress: MutableState<Long>,
+    private val code: MutableState<String>
+) : Runnable {
+    override fun run() {
+        val oldProgress = progress.value
+        progress.value = Instant.now().toEpochMilli() % TIME_WINDOW
+        if (oldProgress > progress.value)
+            code.value = genCode()
+    }
+}
+
+@Composable
+fun ProgressCircle(progress: Float) {
+    val animatedProgress = animate(
+        target = progress,
+        animSpec = ProgressIndicatorConstants.DefaultProgressAnimationSpec
+    )
+
+    CircularProgressIndicator(
+        progress = 1 - animatedProgress / TIME_WINDOW.toFloat(),
+        modifier = Modifier.padding(end = 10.dp),
+        strokeWidth = 25.dp
+    )
+}
+
 
 @Composable
 fun TOTPCodeBar(store: StoreState) {
-    var visible by remember { mutableStateOf(false) }
-    val code by remember { mutableStateOf(store.validationCode) }
+    val mainHandler by remember { mutableStateOf(Handler(Looper.getMainLooper())) }
+    var visible by remember { mutableStateOf(true) }
+    val code = remember { mutableStateOf(genCode()) }
+    val progress = mutableStateOf(Instant.now().toEpochMilli() % TIME_WINDOW)
 
     Row(
         modifier = Modifier
@@ -31,16 +77,19 @@ fun TOTPCodeBar(store: StoreState) {
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.Center
     ) {
+
         Text(
-            text = if (visible) code.toString() else "xxx xxx",
+            text = if (visible) code.value else "XXX XXX",
             fontSize = 32.sp,
             modifier = Modifier.weight(2.0f, true)
         )
 
-        if (visible.not()) {
-            ShowCodeButton { visible = true }
-        } else {
+        if (visible) {
+            mainHandler.postDelayed(CodeTask(mainHandler, progress, code), 50L)
+            ProgressCircle(progress = progress.value.toFloat())
             HideCodeButton { visible = false }
+        } else {
+            ShowCodeButton { visible = true }
         }
     }
 }

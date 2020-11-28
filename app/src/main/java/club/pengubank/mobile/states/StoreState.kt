@@ -8,15 +8,13 @@ import club.pengubank.mobile.data.User
 
 class StoreState {
     var token by mutableStateOf("")
-    var user by mutableStateOf<User?>(null)
-    var validationCode by mutableStateOf<Int?>(null)
+    //var user by mutableStateOf<User?>(null)
     var secretKey by mutableStateOf<Key?>(null)
-    //var user by mutableStateOf<User?>(User(1, "a@b.c", "Today", false, 1))
+    var user by mutableStateOf<User?>(User(1, "a@b.c", "Today", true, 1))
 
     fun logout() {
         token = ""
         user = null
-        validationCode = null
         secretKey = null
     }
 

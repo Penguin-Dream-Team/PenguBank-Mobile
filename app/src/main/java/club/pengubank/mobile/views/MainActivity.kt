@@ -35,27 +35,17 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val timerTask = object : TimerTask() {
-            override fun run() {
-                store.validationCode = TOTPAuthenticator().calculateLastValidationCode(TOTPSecretKey.from(value = "XqbqvNi0aYIIGw==").value)
-            }
-        }
-        store.validationCode = TOTPAuthenticator().calculateLastValidationCode(TOTPSecretKey.from(value = "XqbqvNi0aYIIGw==").value)
-
         setContent {
             val navController = rememberNavController()
 
             MaterialTheme {
                 Scaffold(topBar = { TopBar(navController, store) }) {
-                    NavHost(navController = navController, startDestination = "login") {
+                    NavHost(navController = navController, startDestination = "dashboard") {
                         composable("login") { LoginScreen(navController, loginService) }
                         composable("dashboard") { DashboardScreen(navController, store) }
                     }
                 }
             }
         }
-
-        val timer = Timer()
-        timer.schedule(timerTask, TOTPAuthenticator().getTimeWindowFromTime(), TOTPConfig().timeStepSize.seconds)
     }
 }
