@@ -10,12 +10,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.utils.totp.TOTPAuthenticator
+import club.pengubank.mobile.utils.totp.TOTPConfig
 import club.pengubank.mobile.views.components.IconButton
+import club.pengubank.mobile.views.dashboard.partials.TransactionSection
+import club.pengubank.mobile.views.dashboard.partials.UserInfo
+import java.util.*
 
 @Composable
-fun TOTPCodeBar() {
+fun TOTPCodeBar(store: StoreState) {
     var visible by remember { mutableStateOf(false) }
-    val code by remember { mutableStateOf("137 198") }
+    val code by remember { mutableStateOf(store.validationCode) }
 
     Row(
         modifier = Modifier
@@ -26,7 +32,7 @@ fun TOTPCodeBar() {
         horizontalArrangement = Arrangement.Center
     ) {
         Text(
-            text = if (visible) code else "xxx xxx",
+            text = if (visible) code.toString() else "xxx xxx",
             fontSize = 32.sp,
             modifier = Modifier.weight(2.0f, true)
         )
