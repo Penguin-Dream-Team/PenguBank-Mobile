@@ -91,7 +91,6 @@ dependencies {
     // Typed DataStore (Typed API surface, such as Proto)
     implementation "androidx.datastore:datastore:1.0.0-alpha04"
     implementation  "com.google.protobuf:protobuf-javalite:3.10.0"
-
 }
 
 protobuf {

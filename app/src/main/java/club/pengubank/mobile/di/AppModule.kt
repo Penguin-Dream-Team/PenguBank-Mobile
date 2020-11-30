@@ -43,7 +43,8 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun getApi(store: StoreState): PenguBankApi = PenguBankApi(store)
+    fun getApi(@ApplicationContext context: Context, store: StoreState): PenguBankApi =
+        PenguBankApi(context, store)
 
     @Singleton
     @Provides

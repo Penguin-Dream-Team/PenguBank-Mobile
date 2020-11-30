@@ -1,7 +1,8 @@
 package club.pengubank.mobile.services
 
 import club.pengubank.mobile.api.PenguBankApi
-import club.pengubank.mobile.data.requests.LoginRequest
+import club.pengubank.mobile.api.requests.LoginRequest
+import club.pengubank.mobile.api.requests.SetupRequest
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.storage.UserDataService
 import io.ktor.util.*
@@ -21,6 +22,7 @@ class SetupService constructor(
     }
 
     suspend fun registerPasscode(email: String, passcode: String) {
+        api.setup(SetupRequest(phonePublicKey = ""))
         userDataService.storeUserData(email = email, passcode = passcode)
     }
 }

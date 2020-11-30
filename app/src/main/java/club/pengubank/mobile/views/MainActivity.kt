@@ -1,5 +1,7 @@
 package club.pengubank.mobile.views
 
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
@@ -12,13 +14,14 @@ import androidx.navigation.compose.rememberNavController
 import club.pengubank.mobile.services.LoginService
 import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.states.StoreState
-import club.pengubank.mobile.views.shared.TopBar
 import club.pengubank.mobile.views.dashboard.DashboardScreen
 import club.pengubank.mobile.views.login.LoginScreen
 import club.pengubank.mobile.views.setup.SetupScreen
+import club.pengubank.mobile.views.shared.TopBar
 import dagger.hilt.android.AndroidEntryPoint
 import io.ktor.util.*
 import javax.inject.Inject
+
 
 @KtorExperimentalAPI
 @AndroidEntryPoint

@@ -21,13 +21,13 @@ class SetupPasscodeScreenState(
     var passcodeConfirm: MutableState<String> = mutableStateOf("passcode123")
 
     fun registerPasscode() = GlobalScope.launch(Dispatchers.Main) {
-        state.value = when {
-            passcode.value != passcodeConfirm.value -> SetupState.PasscodeState.Error("Passcodes do not match.")
-            else -> {
-                setupService.registerPasscode(email.value, passcode.value)
-                SetupState.PasscodeState.Success
-            }
+        state.value = SetupState.PasscodeState.Loading
+        state.value = if (passcode.value != passcodeConfirm.value) SetupState.PasscodeState.Error("Passcodes do not match.")
+        else try {
+            setupService.registerPasscode(email.value, passcode.value)
+            SetupState.PasscodeState.Success
+        } catch (t: PenguBankAPIException) {
+            SetupState.PasscodeState.Error(t.message)
         }
     }
-
 }
