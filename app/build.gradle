@@ -3,6 +3,7 @@ plugins {
     id 'kotlin-android'
     id 'kotlin-kapt'
     id 'dagger.hilt.android.plugin'
+    id "com.google.protobuf" version "0.8.12"
 }
 
 android {
@@ -39,12 +40,12 @@ android {
         kotlinCompilerExtensionVersion compose_version
         kotlinCompilerVersion '1.4.10'
     }
+
 }
 
 dependencies {
 
     implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "commons-codec:commons-codec:1.15"
     implementation 'androidx.core:core-ktx:1.3.2'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'com.google.android.material:material:1.2.1'
@@ -83,4 +84,31 @@ dependencies {
 
     // Navigation for compose
     implementation "androidx.navigation:navigation-compose:$nav_compose_version"
+
+    // TOTP Key Representations
+    implementation "commons-codec:commons-codec:1.15"
+
+    // Typed DataStore (Typed API surface, such as Proto)
+    implementation "androidx.datastore:datastore:1.0.0-alpha04"
+    implementation  "com.google.protobuf:protobuf-javalite:3.10.0"
+
+}
+
+protobuf {
+    protoc {
+        artifact = "com.google.protobuf:protoc:3.10.0"
+    }
+
+    // Generates the java Protobuf-lite code for the Protobufs in this project. See
+    // https://github.com/google/protobuf-gradle-plugin#customizing-protobuf-compilation
+    // for more information.
+    generateProtoTasks {
+        all().each { task ->
+            task.builtins {
+                java {
+                    option 'lite'
+                }
+            }
+        }
+    }
 }

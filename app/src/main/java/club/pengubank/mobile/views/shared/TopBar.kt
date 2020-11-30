@@ -1,4 +1,4 @@
-package club.pengubank.mobile.views.components
+package club.pengubank.mobile.views.shared
 
 import androidx.compose.material.Text
 import androidx.compose.material.TopAppBar
@@ -12,7 +12,7 @@ import club.pengubank.mobile.states.StoreState
 @Composable
 fun TopBar(navController: NavHostController, store: StoreState) =
     TopAppBar(title = { Text("PenguBank") }, actions = {
-        if (store.isLoggedIn()) {
+        if (store.loggedIn) {
             IconButton(
                 onClick = {
                     store.logout()

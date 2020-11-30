@@ -1,5 +1,6 @@
 package club.pengubank.mobile.states
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -12,17 +13,16 @@ import kotlinx.coroutines.launch
 class LoginScreenState(private val loginService: LoginService) {
 
     var state: LoginState by mutableStateOf(LoginState.Empty)
-    var email: String by mutableStateOf("a@b.c")
-    var password: String by mutableStateOf("password")
+
+    val email: String = loginService.email
+    var passcode: MutableState<String> = mutableStateOf("passcode123")
 
     fun login() = GlobalScope.launch(Dispatchers.Main) {
         state = LoginState.Loading
-        state = try {
-            loginService.login(email, password)
+        state = if (loginService.login(passcode.value))
             LoginState.Success
-        } catch (t: PenguBankAPIException) {
-            LoginState.Error(t.message)
-        }
+        else
+            LoginState.Error("The passcode provided does not match the stored records")
     }
 
 

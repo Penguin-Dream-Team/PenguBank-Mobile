@@ -15,14 +15,16 @@ import androidx.compose.ui.unit.Duration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.inMilliseconds
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.InternalInteropApi
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.utils.totp.TOTPAuthenticator
 import club.pengubank.mobile.utils.totp.TOTPSecretKey
-import club.pengubank.mobile.views.components.IconButton
+import club.pengubank.mobile.views.shared.IconButton
+import java.security.KeyStore
 import java.time.Instant
-import java.util.*
 
 private fun genCode(): String {
+    val keyStore = KeyStore.getInstance("AndroidKeyStore")
     val secretKey = TOTPSecretKey.from(value = "ZJWLNVQEBJKX5OWP")
     return buildString {
         append(
@@ -47,6 +49,7 @@ class CodeTask(
     }
 }
 
+@InternalInteropApi
 @Composable
 fun ProgressCircle(progress: Float) {
     val animatedProgress = animate(
@@ -62,6 +65,7 @@ fun ProgressCircle(progress: Float) {
 }
 
 
+@InternalInteropApi
 @Composable
 fun TOTPCodeBar(store: StoreState) {
     val mainHandler by remember { mutableStateOf(Handler(Looper.getMainLooper())) }

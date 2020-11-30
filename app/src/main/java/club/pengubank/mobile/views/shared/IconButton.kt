@@ -1,4 +1,4 @@
-package club.pengubank.mobile.views.components
+package club.pengubank.mobile.views.shared
 
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth

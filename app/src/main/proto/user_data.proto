@@ -1,0 +1,10 @@
+syntax = "proto3";
+
+option java_package = "club.pengubank.mobile.storage.protos";
+option java_multiple_files = true;
+
+message UserData {
+  string email = 1;
+  string passcode = 2;
+  string totp_key = 3;
+}

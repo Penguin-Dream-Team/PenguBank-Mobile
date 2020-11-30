@@ -7,11 +7,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.InternalInteropApi
 import androidx.navigation.NavController
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.views.dashboard.partials.totp.TOTPCodeBar
 import club.pengubank.mobile.views.dashboard.partials.totp.TOTPSetupBar
 
+@InternalInteropApi
 @Composable
 fun TOTPSection(navController: NavController, store: StoreState) {
     val storeState by remember { mutableStateOf(store) }
@@ -24,7 +26,7 @@ fun TOTPSection(navController: NavController, store: StoreState) {
             modifier = Modifier.padding(vertical = 6.dp)
         )
 
-        if(storeState.user!!.enabled2FA)
+        if(storeState.enabled2FA)
             TOTPCodeBar(storeState)
         else
             TOTPSetupBar()

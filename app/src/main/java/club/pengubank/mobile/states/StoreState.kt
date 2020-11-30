@@ -3,20 +3,24 @@ package club.pengubank.mobile.states
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import club.pengubank.mobile.data.Key
-import club.pengubank.mobile.data.User
+import club.pengubank.mobile.storage.UserDataService
+import kotlinx.coroutines.runBlocking
 
-class StoreState {
+class StoreState(private val userDataService: UserDataService) {
     var token by mutableStateOf("")
-    //var user by mutableStateOf<User?>(null)
-    var secretKey by mutableStateOf<Key?>(null)
-    var user by mutableStateOf<User?>(User(1, "a@b.c", "Today", true, 1))
+    var loggedIn by mutableStateOf(false)
 
     fun logout() {
         token = ""
-        user = null
-        secretKey = null
+        loggedIn = false
     }
 
-    fun isLoggedIn(): Boolean = token.isNotBlank() && user != null
+    var email: String =
+        runBlocking { userDataService.getUserData().email }
+
+    val enabled2FA: Boolean =
+        runBlocking { userDataService.getUserData().totpKey.isNullOrBlank().not() }
+
+    val hasPerformedSetup: Boolean =
+        runBlocking { userDataService.getUserData().passcode.isNullOrBlank().not() }
 }
