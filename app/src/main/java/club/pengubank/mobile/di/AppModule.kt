@@ -6,6 +6,7 @@ import androidx.datastore.createDataStore
 import club.pengubank.mobile.api.PenguBankApi
 import club.pengubank.mobile.services.LoginService
 import club.pengubank.mobile.services.SetupService
+import club.pengubank.mobile.services.TransactionService
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.storage.UserDataSerializer
 import club.pengubank.mobile.storage.UserDataService
@@ -36,6 +37,11 @@ object AppModule {
     @Provides
     fun getLoginService(userDataService: UserDataService, store: StoreState): LoginService =
         LoginService(userDataService, store)
+
+    @Singleton
+    @Provides
+    fun getTransactionService(userDataService: UserDataService, store: StoreState): TransactionService =
+        TransactionService(userDataService, store)
 
     @Singleton
     @Provides

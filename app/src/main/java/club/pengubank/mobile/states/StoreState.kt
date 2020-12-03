@@ -9,9 +9,11 @@ import kotlinx.coroutines.runBlocking
 class StoreState(private val userDataService: UserDataService) {
     var token by mutableStateOf("")
     var loggedIn by mutableStateOf(false)
+    var qrcodeScanned by mutableStateOf(false)
 
     fun logout() {
         token = ""
+        qrcodeScanned = false
         loggedIn = false
     }
 
