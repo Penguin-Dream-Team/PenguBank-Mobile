@@ -28,7 +28,7 @@ fun TransactionSection(navController: NavController, transactionService: Transac
         if(storeState.qrcodeScanned)
             QueuedTransactions(transactionService)
         else
-            QRCodeScan(storeState)
+            QRCodeScan(navController, storeState)
 
         Divider()
     }
