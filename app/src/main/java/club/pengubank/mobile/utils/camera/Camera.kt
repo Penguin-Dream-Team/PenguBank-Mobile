@@ -113,12 +113,12 @@ class Camera() {
         var camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
         val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient()
         if (analysisUseCase != null) {
-            cameraProvider!!.unbind(analysisUseCase)
+            cameraProvider.unbind(analysisUseCase)
         }
 
         analysisUseCase = ImageAnalysis.Builder()
             .setTargetAspectRatio(screenAspectRatio)
-            .setTargetRotation(previewView!!.display.rotation)
+            .setTargetRotation(previewView.display.rotation)
             .build()
         val cameraExecutor = Executors.newSingleThreadExecutor()
 
@@ -127,7 +127,7 @@ class Camera() {
         })
 
         try {
-            cameraProvider!!.bindToLifecycle(lifecycleOwner, cameraSelector!!, analysisUseCase)
+            cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, analysisUseCase)
         } catch (illegalStateException: IllegalStateException) {
             illegalStateException.message?.let { Log.e(ContentValues.TAG, it) }
         } catch (illegalArgumentException: IllegalArgumentException) {

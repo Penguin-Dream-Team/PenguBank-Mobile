@@ -32,7 +32,6 @@ class PenguBankApi(
         private val APIConfig = Config.load()
         val PROTOCOL = APIConfig.protocol
         val HOST = APIConfig.host
-        val PORT = APIConfig.port
         val TIMEOUT = APIConfig.timeout
     }
 
@@ -43,7 +42,6 @@ class PenguBankApi(
         install(DefaultRequest) {
             contentType(ContentType.Application.Json)
             host = HOST
-            port = PORT
         }
 
         install(HttpTimeout) {
@@ -98,5 +96,4 @@ class PenguBankApi(
     private fun addJWTTokenToRequest(headers: HeadersBuilder) {
         if (store.token.isNotBlank()) headers["Authorization"] = "Bearer ${store.token}"
     }
-
 }

@@ -5,7 +5,6 @@ import com.sksamuel.hoplite.ConfigLoader
 data class Config(
     val protocol: String,
     val host: String,
-    val port: Int,
     val timeout: Long
 ) {
     companion object {
