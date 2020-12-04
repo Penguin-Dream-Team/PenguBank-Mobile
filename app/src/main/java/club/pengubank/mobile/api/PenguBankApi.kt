@@ -1,14 +1,18 @@
 package club.pengubank.mobile.api
 
+import android.annotation.SuppressLint
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothManager
+import android.content.Context
 import club.pengubank.mobile.api.models.Response
 import club.pengubank.mobile.data.User
-import club.pengubank.mobile.data.requests.LoginRequest
+import club.pengubank.mobile.api.requests.LoginRequest
+import club.pengubank.mobile.api.requests.SetupRequest
 import club.pengubank.mobile.errors.PenguBankAPIException
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.utils.Config
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.engine.android.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
@@ -20,6 +24,7 @@ import java.util.concurrent.TimeoutException
 
 @KtorExperimentalAPI
 class PenguBankApi(
+    private val context: Context,
     private val store: StoreState
 ) {
 
@@ -48,6 +53,14 @@ class PenguBankApi(
 
     suspend fun login(loginRequest: LoginRequest): Response.SuccessResponse<User> =
         post(Routes.LOGIN, loginRequest)
+
+    @SuppressLint("DefaultLocale", "HardwareIds")
+    suspend fun setup(setupRequest: SetupRequest): Response.SuccessResponse<User> {
+        val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
+        val info = manager.adapter
+        setupRequest.phoneMACAddress = info.address.toUpperCase()
+        return post(Routes.SETUP, setupRequest)
+    }
 
     suspend fun dashboard(): Response.SuccessResponse<Any> = get("/dashboard")
 

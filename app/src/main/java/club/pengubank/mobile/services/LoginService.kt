@@ -1,18 +1,21 @@
 package club.pengubank.mobile.services
 
-import club.pengubank.mobile.api.PenguBankApi
-import club.pengubank.mobile.data.requests.LoginRequest
 import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.storage.UserDataService
 
 class LoginService(
-    private val store: StoreState,
-    private val api: PenguBankApi
+    private val userDataService: UserDataService,
+    private val store: StoreState
 ) {
 
-    suspend fun login(email: String, password: String) {
-        val response = api.login(LoginRequest(email, password))
-        store.token = response.token
-        store.user = response.data
+    suspend fun login(passcode: String): Boolean {
+        // TODO("USE BCRYPT AND DECRYPT")
+        val result = userDataService.getUserData().passcode == passcode
+        store.loggedIn = result
+        return result
     }
 
+    val email: String get() = store.email
+
+    fun logout() = store.logout()
 }

@@ -1,3 +1,3 @@
-package club.pengubank.mobile.data.requests
+package club.pengubank.mobile.api.requests
 
 data class LoginRequest(val email: String = "", val password: String = "")

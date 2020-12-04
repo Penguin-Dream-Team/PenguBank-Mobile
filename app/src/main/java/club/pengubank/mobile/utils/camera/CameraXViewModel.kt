@@ -1,4 +1,4 @@
-package club.pengubank.mobile.views
+package club.pengubank.mobile.utils.camera
 
 import android.app.Application
 import android.util.Log
@@ -43,6 +43,4 @@ class CameraXViewModel(application: Application) : AndroidViewModel(application)
     companion object {
         private const val TAG = "CameraXViewModel"
     }
-
-
 }
