@@ -26,7 +26,6 @@ fun QRCodeScan(navController: NavController, storeState: StoreState) {
         Button(
             onClick = {
                 navController.navigate("camera")
-                storeState.qrcodeScanned = true
             },
             modifier = Modifier
                 .fillMaxWidth()

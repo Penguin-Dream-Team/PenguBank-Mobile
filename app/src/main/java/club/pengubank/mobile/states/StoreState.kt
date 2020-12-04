@@ -10,6 +10,7 @@ class StoreState(private val userDataService: UserDataService) {
     var token by mutableStateOf("")
     var loggedIn by mutableStateOf(false)
     var qrcodeScanned by mutableStateOf(false)
+    var dataScanned by mutableStateOf("")
 
     fun logout() {
         token = ""

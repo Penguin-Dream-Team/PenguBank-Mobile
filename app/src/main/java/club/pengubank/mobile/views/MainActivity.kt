@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
                         composable("login") { LoginScreen(navController, loginService) }
                         composable("dashboard") { DashboardScreen(navController, transactionService, storeState) }
 
-                        composable("camera") { Camera().SimpleCameraPreview() }
+                        composable("camera") { Camera().SimpleCameraPreview(navController, storeState) }
                     }
                 }
             }
