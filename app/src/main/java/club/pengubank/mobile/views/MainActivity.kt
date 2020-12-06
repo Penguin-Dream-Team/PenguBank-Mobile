@@ -1,5 +1,6 @@
 package club.pengubank.mobile.views
 
+import android.bluetooth.BluetoothAdapter
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
@@ -13,6 +14,7 @@ import club.pengubank.mobile.services.LoginService
 import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.services.TransactionService
 import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.utils.bluetooth.Client
 import club.pengubank.mobile.views.dashboard.DashboardScreen
 import club.pengubank.mobile.views.login.LoginScreen
 import club.pengubank.mobile.views.setup.SetupScreen
@@ -41,6 +43,9 @@ class MainActivity : AppCompatActivity() {
     @InternalInteropApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        Client("0C:DD:24:29:20:92").start()
+
 
         setContent {
             val navController = rememberNavController()

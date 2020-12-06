@@ -13,6 +13,7 @@ import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.utils.Config
 import io.ktor.client.*
 import io.ktor.client.call.*
+import io.ktor.client.engine.android.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.features.*
 import io.ktor.client.features.json.*
@@ -36,14 +37,16 @@ class PenguBankApi(
         val TIMEOUT = APIConfig.timeout
     }
 
-    private val api = HttpClient(CIO) {
+    private val api = HttpClient(Android) {
         install(JsonFeature) {
             serializer = GsonSerializer()
         }
         install(DefaultRequest) {
             contentType(ContentType.Application.Json)
-            host = HOST
-            port = PORT
+            url.host = HOST
+            url.protocol = if (PROTOCOL == "https") URLProtocol.HTTPS else URLProtocol.HTTP
+            if (url.protocol != URLProtocol.HTTPS)
+                url.port = PORT
         }
 
         install(HttpTimeout) {
@@ -66,14 +69,14 @@ class PenguBankApi(
 
     private suspend inline fun <reified T> get(path: String = "/"): T =
         try {
-            api.get(scheme = PROTOCOL, path = path) { addJWTTokenToRequest(headers) }
+            api.get(path = path) { addJWTTokenToRequest(headers) }
         } catch (e: Exception) {
             handleApiException(e) as T
         }
 
     private suspend inline fun <reified T> post(path: String, data: Any): T =
         try {
-            api.post(scheme = PROTOCOL, path = path, body = data) { addJWTTokenToRequest(headers) }
+            api.post(path = path, body = data) { addJWTTokenToRequest(headers) }
         } catch (e: Exception) {
             handleApiException(e) as T
         }
@@ -85,9 +88,9 @@ class PenguBankApi(
             is java.net.SocketTimeoutException,
             is TimeoutException,
             is ConnectTimeoutException -> Response.ErrorResponse("Can't reach the server")
-            is ClientRequestException -> e.response?.receive<Response.ErrorResponse>()
-                ?: Response.ErrorResponse("Oops, something went wrong")
+            is ClientRequestException -> e.response.receive<Response.ErrorResponse>()
             else -> {
+                e.printStackTrace()
                 Response.ErrorResponse(e.message ?: "Unknown error")
             }
         }
