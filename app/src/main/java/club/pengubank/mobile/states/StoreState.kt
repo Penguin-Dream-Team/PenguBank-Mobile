@@ -9,21 +9,26 @@ import kotlinx.coroutines.runBlocking
 class StoreState(private val userDataService: UserDataService) {
     var token by mutableStateOf("")
     var loggedIn by mutableStateOf(false)
+    var operation by mutableStateOf("")
     var qrcodeScanned by mutableStateOf(false)
-    var dataScanned by mutableStateOf("")
+    var bluetoothMac by mutableStateOf("")
+    var kPub by mutableStateOf("")
 
     fun logout() {
         token = ""
-        qrcodeScanned = false
         loggedIn = false
+        operation = ""
+        qrcodeScanned = false
+        bluetoothMac = ""
+        kPub = ""
     }
 
-    var email: String =
-        runBlocking { userDataService.getUserData().email }
+    var email: String = ""
+        get() = runBlocking { userDataService.getUserData().email }
 
-    val enabled2FA: Boolean =
-        runBlocking { userDataService.getUserData().totpKey.isNullOrBlank().not() }
+    val enabled2FA: Boolean
+        get() = runBlocking { userDataService.getUserData().totpKey.isNullOrBlank().not() }
 
-    val hasPerformedSetup: Boolean =
-        runBlocking { userDataService.getUserData().passcode.isNullOrBlank().not() }
+    val hasPerformedSetup: Boolean
+        get() = runBlocking { userDataService.getUserData().passcode.isNullOrBlank().not() }
 }

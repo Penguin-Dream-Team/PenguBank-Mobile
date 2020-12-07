@@ -25,6 +25,7 @@ fun QRCodeScan(navController: NavController, storeState: StoreState) {
     ) {
         Button(
             onClick = {
+                storeState.operation = "QRCode"
                 navController.navigate("camera")
             },
             modifier = Modifier

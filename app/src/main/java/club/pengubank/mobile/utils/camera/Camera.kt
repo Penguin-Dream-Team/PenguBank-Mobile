@@ -2,6 +2,7 @@ package club.pengubank.mobile.utils.camera
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.net.Uri.encode
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,12 +18,17 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
+import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.views.MainActivity
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import io.ktor.http.*
 import io.ktor.util.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
@@ -74,7 +80,11 @@ class Camera() {
 
     @SuppressLint("InflateParams", "WrongConstant")
     @Composable
-    fun SimpleCameraPreview(navController: NavHostController, storeState: StoreState) {
+    fun SimpleCameraPreview(
+        navController: NavHostController,
+        storeState: StoreState,
+        setupService: SetupService
+    ) {
         val lifecycleOwner = LifecycleOwnerAmbient.current
         val context = ContextAmbient.current
         val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -89,7 +99,8 @@ class Camera() {
                     inflatedLayout as PreviewView,
                     cameraProvider,
                     navController,
-                    storeState
+                    storeState,
+                    setupService
                 )
             }, ContextCompat.getMainExecutor(context))
         }
@@ -100,7 +111,8 @@ class Camera() {
         previewView: PreviewView,
         cameraProvider: ProcessCameraProvider,
         navController: NavHostController,
-        storeState: StoreState
+        storeState: StoreState,
+        setupService: SetupService
     ) {
         val preview: Preview = Preview.Builder().build()
 
@@ -123,7 +135,7 @@ class Camera() {
         val cameraExecutor = Executors.newSingleThreadExecutor()
 
         analysisUseCase?.setAnalyzer(cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
-            processImageProxy(barcodeScanner, imageProxy, navController, storeState)
+            processImageProxy(barcodeScanner, imageProxy, navController, storeState, setupService)
         })
 
         try {
@@ -135,24 +147,33 @@ class Camera() {
         }
     }
 
+    @KtorExperimentalAPI
     @SuppressLint("UnsafeExperimentalUsageError")
     private fun processImageProxy(
         barcodeScanner: BarcodeScanner,
         imageProxy: ImageProxy,
         navController: NavHostController,
-        storeState: StoreState
+        storeState: StoreState,
+        setupService: SetupService
     ) {
         val inputImage =
             InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
 
         barcodeScanner.process(inputImage)
-            .addOnSuccessListener { barcodes ->
+            .addOnSuccessListener  { barcodes ->
                 barcodes.forEach {
                     it.rawValue?.let {
                         it1 -> Log.d("HERE------------------------", it1)
-                        storeState.qrcodeScanned = true
-                        storeState.dataScanned = it1
                         imageProxy.close()
+
+                        if (storeState.operation == "QRCode") {
+                            storeState.qrcodeScanned = true
+                            storeState.bluetoothMac = URLBuilder(it1).parameters[encode("bluetoothMac")].toString()
+                            storeState.kPub = URLBuilder(it1).parameters[encode("kPub")].toString()
+                        } else {
+                            setupService.registerTOTP(URLBuilder(it1).parameters[encode("token")].toString())
+                        }
+
                         navController.backStack.clear()
                         navController.navigate("dashboard")
                     }

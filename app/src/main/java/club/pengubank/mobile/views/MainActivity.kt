@@ -19,6 +19,7 @@ import club.pengubank.mobile.services.LoginService
 import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.services.TransactionService
 import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.storage.UserDataService
 import club.pengubank.mobile.utils.camera.Camera
 import dagger.hilt.android.AndroidEntryPoint
 import club.pengubank.mobile.views.dashboard.DashboardScreen
@@ -44,6 +45,9 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var storeState: StoreState
 
+    @Inject
+    lateinit var userDataService: UserDataService
+
     @SuppressLint("WrongConstant")
     @InternalInteropApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,7 +71,7 @@ class MainActivity : AppCompatActivity() {
                         composable("login") { LoginScreen(navController, loginService) }
                         composable("dashboard") { DashboardScreen(navController, transactionService, storeState) }
 
-                        composable("camera") { Camera().SimpleCameraPreview(navController, storeState) }
+                        composable("camera") { Camera().SimpleCameraPreview(navController, storeState, setupService) }
                     }
                 }
             }

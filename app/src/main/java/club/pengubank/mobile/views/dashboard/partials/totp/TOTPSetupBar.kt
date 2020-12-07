@@ -2,21 +2,18 @@ package club.pengubank.mobile.views.dashboard.partials.totp
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Visibility
-import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.VectorAsset
-import androidx.compose.ui.semantics.accessibilityLabel
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.navigate
+import club.pengubank.mobile.states.StoreState
 
 @Composable
-fun TOTPSetupBar() {
+fun TOTPSetupBar(navController: NavController, storeState: StoreState) {
     Row(
         modifier = Modifier
             .preferredHeight(56.dp)
@@ -26,7 +23,10 @@ fun TOTPSetupBar() {
         horizontalArrangement = Arrangement.Center
     ) {
         Button(
-            onClick = { },
+            onClick = {
+                storeState.operation = "TOTP"
+                navController.navigate("camera")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()

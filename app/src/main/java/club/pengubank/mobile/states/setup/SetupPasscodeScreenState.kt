@@ -1,9 +1,7 @@
 package club.pengubank.mobile.states.setup
 
 import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import club.pengubank.mobile.errors.PenguBankAPIException
 import club.pengubank.mobile.services.SetupService
 import io.ktor.util.*

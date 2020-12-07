@@ -39,7 +39,7 @@ fun QueuedTransactions(transactionService: TransactionService, storeState: Store
         if (queuedTransactions.indexOf(transaction) == 0) {
             Text(
                 modifier = Modifier.padding(16.dp),
-                text = "All Queued Transactions - ${storeState.dataScanned}",
+                text = "All Queued Transactions - ${storeState.bluetoothMac} - ${storeState.kPub}",
                 style = TextStyle(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
