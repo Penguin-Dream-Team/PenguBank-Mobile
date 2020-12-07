@@ -31,4 +31,7 @@ class StoreState(private val userDataService: UserDataService) {
 
     val hasPerformedSetup: Boolean
         get() = runBlocking { userDataService.getUserData().passcode.isNullOrBlank().not() }
+
+    val totpSecretKey: String
+        get() = runBlocking { userDataService.getUserData().totpKey }
 }

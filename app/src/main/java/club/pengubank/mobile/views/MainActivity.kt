@@ -4,6 +4,7 @@ import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.setContent
 import androidx.compose.material.MaterialTheme
@@ -15,6 +16,7 @@ import androidx.core.content.PermissionChecker
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import club.pengubank.mobile.security.SecurityUtils
 import club.pengubank.mobile.services.LoginService
 import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.services.TransactionService
@@ -43,10 +45,10 @@ class MainActivity : AppCompatActivity() {
     lateinit var transactionService: TransactionService
 
     @Inject
-    lateinit var storeState: StoreState
+    lateinit var userDataService: UserDataService
 
     @Inject
-    lateinit var userDataService: UserDataService
+    lateinit var storeState: StoreState
 
     @SuppressLint("WrongConstant")
     @InternalInteropApi
@@ -54,10 +56,12 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         val MY_CAMERA_REQUEST_CODE = 100
+        SecurityUtils.init()
+        Log.i("INITPASS", "skkr")
+        Log.i("INITPASS", SecurityUtils.writePublicKey(SecurityUtils.getPublicKey()))
 
         setContent {
             val navController = rememberNavController()
-
             val startDestination = if (storeState.hasPerformedSetup) "login" else "setup"
             if (PermissionChecker.checkSelfPermission(ContextAmbient.current, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
                 ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), MY_CAMERA_REQUEST_CODE)

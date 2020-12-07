@@ -1,5 +1,6 @@
 package club.pengubank.mobile.services
 
+import android.util.Log
 import club.pengubank.mobile.api.PenguBankApi
 import club.pengubank.mobile.api.requests.LoginRequest
 import club.pengubank.mobile.api.requests.SetupRequest
@@ -25,7 +26,7 @@ class SetupService constructor(
     }
 
     suspend fun registerPasscode(email: String, passcode: String) {
-        api.setup(SetupRequest(phonePublicKey = ""))
+        api.setup()
         userDataService.storeUserData(email = email, passcode = passcode)
     }
 
