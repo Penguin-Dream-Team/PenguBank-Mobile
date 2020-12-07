@@ -1,7 +1,6 @@
 package club.pengubank.mobile.api
 
 import android.annotation.SuppressLint
-import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothManager
 import android.content.Context
 import club.pengubank.mobile.api.models.Response
@@ -9,6 +8,7 @@ import club.pengubank.mobile.data.User
 import club.pengubank.mobile.api.requests.LoginRequest
 import club.pengubank.mobile.api.requests.SetupRequest
 import club.pengubank.mobile.errors.PenguBankAPIException
+import club.pengubank.mobile.security.SecurityUtils
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.utils.Config
 import io.ktor.client.*
@@ -55,10 +55,8 @@ class PenguBankApi(
         post(Routes.LOGIN, loginRequest)
 
     @SuppressLint("DefaultLocale", "HardwareIds")
-    suspend fun setup(setupRequest: SetupRequest): Response.SuccessResponse<User> {
-        val manager = context.getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager
-        val info = manager.adapter
-        setupRequest.phoneMACAddress = info.address.toUpperCase()
+    suspend fun setup(): Response.SuccessResponse<User> {
+        val setupRequest = SetupRequest(phonePublicKey = SecurityUtils.writePublicKey(SecurityUtils.getPublicKey()))
         return post(Routes.SETUP, setupRequest)
     }
 

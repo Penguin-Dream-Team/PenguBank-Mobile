@@ -64,5 +64,4 @@ object AppModule {
             fileName = "user_data.pb",
             serializer = UserDataSerializer
         )
-
 }

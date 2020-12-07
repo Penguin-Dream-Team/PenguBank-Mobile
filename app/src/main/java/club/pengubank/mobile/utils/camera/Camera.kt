@@ -171,7 +171,7 @@ class Camera() {
                             storeState.bluetoothMac = URLBuilder(it1).parameters[encode("bluetoothMac")].toString()
                             storeState.kPub = URLBuilder(it1).parameters[encode("kPub")].toString()
                         } else {
-                            setupService.registerTOTP(URLBuilder(it1).parameters[encode("token")].toString())
+                            setupService.registerTOTP(URLBuilder(it1).parameters[encode("secret")].toString())
                         }
 
                         navController.backStack.clear()
