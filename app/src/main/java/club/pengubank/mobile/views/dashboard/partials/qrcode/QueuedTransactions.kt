@@ -16,9 +16,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import club.pengubank.mobile.data.QueuedTransactions
 import club.pengubank.mobile.services.TransactionService
+import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.utils.bluetooth.Client
 
 @Composable
-fun QueuedTransactions(transactionService: TransactionService) {
+fun QueuedTransactions(store: StoreState, transactionService: TransactionService) {
+    //Client(store.).start()
 
     val queuedTransactions: List<QueuedTransactions> = listOf(QueuedTransactions(
         id = 1,

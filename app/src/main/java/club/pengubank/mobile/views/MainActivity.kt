@@ -44,9 +44,6 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Client("0C:DD:24:29:20:92").start()
-
-
         setContent {
             val navController = rememberNavController()
 
