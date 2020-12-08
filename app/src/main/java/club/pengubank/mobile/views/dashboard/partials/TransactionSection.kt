@@ -26,9 +26,11 @@ fun TransactionSection(navController: NavController, transactionService: Transac
         )
 
         if(storeState.qrcodeScanned)
-            QueuedTransactions(transactionService)
+            // Init Bluetooth Connection
+            // DH
+            QueuedTransactions(storeState, transactionService)
         else
-            QRCodeScan(storeState)
+            QRCodeScan(navController, storeState)
 
         Divider()
     }

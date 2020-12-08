@@ -8,10 +8,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
+import androidx.navigation.compose.navigate
 import club.pengubank.mobile.states.StoreState
 
 @Composable
-fun QRCodeScan(storeState: StoreState) {
+fun QRCodeScan(navController: NavController, storeState: StoreState) {
 
     Row(
         modifier = Modifier
@@ -22,7 +24,9 @@ fun QRCodeScan(storeState: StoreState) {
         horizontalArrangement = Arrangement.Center
     ) {
         Button(
-            onClick = { storeState.qrcodeScanned = true },
+            onClick = {
+                navController.navigate("camera")
+            },
             modifier = Modifier
                 .fillMaxWidth()
                 .fillMaxHeight()

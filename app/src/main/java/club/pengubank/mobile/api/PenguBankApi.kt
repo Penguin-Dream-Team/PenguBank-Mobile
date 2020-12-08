@@ -101,5 +101,4 @@ class PenguBankApi(
     private fun addJWTTokenToRequest(headers: HeadersBuilder) {
         if (store.token.isNotBlank()) headers["Authorization"] = "Bearer ${store.token}"
     }
-
 }

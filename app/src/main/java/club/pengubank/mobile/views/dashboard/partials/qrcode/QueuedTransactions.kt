@@ -21,7 +21,7 @@ import club.pengubank.mobile.utils.bluetooth.Client
 
 @Composable
 fun QueuedTransactions(store: StoreState, transactionService: TransactionService) {
-    //Client(store.).start()
+    Client(store).start()
 
     val queuedTransactions: List<QueuedTransactions> = listOf(QueuedTransactions(
         id = 1,
@@ -41,7 +41,7 @@ fun QueuedTransactions(store: StoreState, transactionService: TransactionService
         if (queuedTransactions.indexOf(transaction) == 0) {
             Text(
                 modifier = Modifier.padding(16.dp),
-                text = "All Queued Transactions",
+                text = "All Queued Transactions - ${store.dataScanned}",
                 style = TextStyle(
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold
