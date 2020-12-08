@@ -2,9 +2,12 @@ package club.pengubank.mobile.views
 
 import android.Manifest
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
+import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
-import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.platform.setContent
 import androidx.compose.material.MaterialTheme
@@ -22,6 +25,7 @@ import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.services.TransactionService
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.storage.UserDataService
+import club.pengubank.mobile.utils.biometric.Biometric
 import club.pengubank.mobile.utils.camera.Camera
 import dagger.hilt.android.AndroidEntryPoint
 import club.pengubank.mobile.views.dashboard.DashboardScreen
@@ -50,15 +54,17 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var storeState: StoreState
 
+    @RequiresApi(Build.VERSION_CODES.P)
     @SuppressLint("WrongConstant")
     @InternalInteropApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val MY_CAMERA_REQUEST_CODE = 100
+        val keyGuardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+
         SecurityUtils.init()
-        Log.i("INITPASS", "skkr")
-        Log.i("INITPASS", SecurityUtils.writePublicKey(SecurityUtils.getPublicKey()))
+        Biometric.init(this, mainExecutor, keyGuardManager)
 
         setContent {
             val navController = rememberNavController()

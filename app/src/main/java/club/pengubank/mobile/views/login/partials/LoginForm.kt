@@ -1,10 +1,10 @@
 package club.pengubank.mobile.views.login.partials
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.runtime.Composable
@@ -12,8 +12,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import club.pengubank.mobile.states.LoginScreenState
+import club.pengubank.mobile.utils.biometric.Biometric
 import club.pengubank.mobile.views.shared.PasswordField
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun LoginForm(loginState: LoginScreenState) {
     val state = loginState.state
@@ -36,6 +38,15 @@ fun LoginForm(loginState: LoginScreenState) {
             enabled = state != LoginScreenState.LoginState.Loading
         ) {
             Text("Login")
+        }
+
+        Spacer(modifier = Modifier.padding(vertical = 5.dp))
+
+        Button(
+            onClick = { Biometric.checkFingerPrint(loginState) },
+            enabled = Biometric.checkBiometricSupport()
+        ) {
+            Text("Login with FingerPrint")
         }
 
         if (state is LoginScreenState.LoginState.Error)
