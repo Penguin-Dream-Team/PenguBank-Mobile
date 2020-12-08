@@ -2,6 +2,8 @@ package club.pengubank.mobile.utils.camera
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
+import android.content.Context
+import android.net.Uri.encode
 import android.util.DisplayMetrics
 import android.util.Log
 import android.view.LayoutInflater
@@ -17,11 +19,15 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
+import club.pengubank.mobile.bluetooth.Client
+import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.states.StoreState
+import club.pengubank.mobile.utils.Toasts
 import club.pengubank.mobile.views.MainActivity
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
+import io.ktor.http.*
 import io.ktor.util.*
 import java.util.concurrent.Executors
 import kotlin.math.abs
@@ -74,7 +80,11 @@ class Camera() {
 
     @SuppressLint("InflateParams", "WrongConstant")
     @Composable
-    fun SimpleCameraPreview(navController: NavHostController, storeState: StoreState) {
+    fun SimpleCameraPreview(
+        navController: NavHostController,
+        storeState: StoreState,
+        setupService: SetupService
+    ) {
         val lifecycleOwner = LifecycleOwnerAmbient.current
         val context = ContextAmbient.current
         val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
@@ -89,7 +99,9 @@ class Camera() {
                     inflatedLayout as PreviewView,
                     cameraProvider,
                     navController,
-                    storeState
+                    storeState,
+                    setupService,
+                    context
                 )
             }, ContextCompat.getMainExecutor(context))
         }
@@ -100,7 +112,9 @@ class Camera() {
         previewView: PreviewView,
         cameraProvider: ProcessCameraProvider,
         navController: NavHostController,
-        storeState: StoreState
+        storeState: StoreState,
+        setupService: SetupService,
+        context: Context
     ) {
         val preview: Preview = Preview.Builder().build()
 
@@ -123,7 +137,7 @@ class Camera() {
         val cameraExecutor = Executors.newSingleThreadExecutor()
 
         analysisUseCase?.setAnalyzer(cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
-            processImageProxy(barcodeScanner, imageProxy, navController, storeState)
+            processImageProxy(barcodeScanner, imageProxy, navController, storeState, setupService, context)
         })
 
         try {
@@ -135,32 +149,45 @@ class Camera() {
         }
     }
 
-    @SuppressLint("UnsafeExperimentalUsageError")
+    @KtorExperimentalAPI
+    @SuppressLint("UnsafeExperimentalUsageError", "RestrictedApi")
     private fun processImageProxy(
         barcodeScanner: BarcodeScanner,
         imageProxy: ImageProxy,
         navController: NavHostController,
-        storeState: StoreState
+        store: StoreState,
+        setupService: SetupService,
+        context: Context
     ) {
         val inputImage =
             InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
 
         barcodeScanner.process(inputImage)
-            .addOnSuccessListener { barcodes ->
-                barcodes.forEach {
-                    it.rawValue?.let {
-                        it1 -> Log.d("HERE------------------------", it1)
-                        storeState.qrcodeScanned = true
-                        storeState.dataScanned = it1
+            .addOnSuccessListener  { barcodes ->
+                barcodes.forEach { barcode ->
+                    barcode.rawValue?.let {
                         imageProxy.close()
+
+                        if (store.operation == "QRCode") {
+                            store.qrcodeScanned = true
+                            store.bluetoothMac = URLBuilder(it).parameters[encode("bluetoothMac")].toString()
+                            store.kPub = URLBuilder(it).parameters[encode("kPub")].toString()
+                            if(store.client == null) {
+                                store.client = Client(store)
+                                store.client!!.start()
+                                store.client!!.refreshPendingTransactions()
+                                Toasts.notifyUser(context, "Refreshed pending transactions")
+                            }
+                        } else {
+                            setupService.registerTOTP(URLBuilder(it).parameters[encode("secret")].toString())
+                        }
+
                         navController.backStack.clear()
                         navController.navigate("dashboard")
                     }
                 }
             }
-            .addOnFailureListener {
-                it.message?.let { it1 -> Log.e("NOT HERE-------------------------", it1) }
-            }.addOnCompleteListener {
+            .addOnFailureListener { }.addOnCompleteListener {
                 imageProxy.close()
             }
     }

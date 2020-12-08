@@ -1,20 +1,23 @@
 package club.pengubank.mobile.views.dashboard.partials.qrcode
 
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.material.Button
+import androidx.compose.material.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat.startActivityForResult
 import androidx.navigation.NavController
 import androidx.navigation.compose.navigate
 import club.pengubank.mobile.states.StoreState
 
 @Composable
-fun QRCodeScan(navController: NavController, storeState: StoreState) {
-
+fun QRCodeScan(navController: NavController, storeState: StoreState, requestBluetooth: () -> Unit) {
     Row(
         modifier = Modifier
             .preferredHeight(56.dp)
@@ -25,7 +28,12 @@ fun QRCodeScan(navController: NavController, storeState: StoreState) {
     ) {
         Button(
             onClick = {
-                navController.navigate("camera")
+                if (!BluetoothAdapter.getDefaultAdapter().isEnabled) {
+                    requestBluetooth()
+                } else {
+                    storeState.operation = "QRCode"
+                    navController.navigate("camera")
+                }
             },
             modifier = Modifier
                 .fillMaxWidth()

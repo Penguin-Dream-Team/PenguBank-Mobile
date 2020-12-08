@@ -20,16 +20,14 @@ import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.utils.totp.TOTPAuthenticator
 import club.pengubank.mobile.utils.totp.TOTPSecretKey
 import club.pengubank.mobile.views.shared.IconButton
-import java.security.KeyStore
 import java.time.Instant
 
-private fun genCode(): String {
-    val keyStore = KeyStore.getInstance("AndroidKeyStore")
-    val secretKey = TOTPSecretKey.from(value = "ZJWLNVQEBJKX5OWP")
+private fun genCode(storeState: StoreState): String {
+    val secretKey = TOTPSecretKey.from(value = storeState.totpSecretKey)
     return buildString {
         append(
             TOTPAuthenticator().calculateLastValidationCode(secretKey.value).toString()
-            .padStart(6, '0')
+                .padStart(6, '0')
         ).insert(3, ' ')
     }
 }
@@ -39,13 +37,14 @@ val TIME_WINDOW = Duration(seconds = 30).inMilliseconds()
 class CodeTask(
     private val mainHandler: Handler,
     private val progress: MutableState<Long>,
-    private val code: MutableState<String>
+    private val code: MutableState<String>,
+    private val storeState: StoreState
 ) : Runnable {
     override fun run() {
         val oldProgress = progress.value
         progress.value = Instant.now().toEpochMilli() % TIME_WINDOW
         if (oldProgress > progress.value)
-            code.value = genCode()
+            code.value = genCode(storeState)
     }
 }
 
@@ -69,8 +68,7 @@ fun ProgressCircle(progress: Float) {
 @Composable
 fun TOTPCodeBar(store: StoreState) {
     val mainHandler by remember { mutableStateOf(Handler(Looper.getMainLooper())) }
-    var visible by remember { mutableStateOf(true) }
-    val code = remember { mutableStateOf(genCode()) }
+    val code = remember { mutableStateOf(genCode(store)) }
     val progress = mutableStateOf(Instant.now().toEpochMilli() % TIME_WINDOW)
 
     Row(
@@ -83,37 +81,12 @@ fun TOTPCodeBar(store: StoreState) {
     ) {
 
         Text(
-            text = if (visible) code.value else "XXX XXX",
+            text = code.value,
             fontSize = 32.sp,
             modifier = Modifier.weight(2.0f, true)
         )
 
-        if (visible) {
-            mainHandler.postDelayed(CodeTask(mainHandler, progress, code), 50L)
-            ProgressCircle(progress = progress.value.toFloat())
-            HideCodeButton { visible = false }
-        } else {
-            ShowCodeButton { visible = true }
-        }
+        mainHandler.postDelayed(CodeTask(mainHandler, progress, code, store), 50L)
+        ProgressCircle(progress = progress.value.toFloat())
     }
-}
-
-@Composable
-private fun ShowCodeButton(onClick: () -> Unit) {
-    IconButton(
-        onClick = onClick,
-        icon = Icons.Outlined.Visibility,
-        description = "View TOTP",
-        selected = false
-    )
-}
-
-@Composable
-private fun HideCodeButton(onClick: () -> Unit) {
-    IconButton(
-        onClick = onClick,
-        icon = Icons.Outlined.VisibilityOff,
-        description = "Hide TOTP",
-        selected = true
-    )
 }

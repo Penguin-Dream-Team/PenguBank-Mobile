@@ -1,0 +1,45 @@
+package club.pengubank.mobile.bluetooth
+
+import android.bluetooth.BluetoothSocket
+import club.pengubank.mobile.bluetooth.models.messages.ErrorResponse
+import club.pengubank.mobile.bluetooth.models.messages.RetrievePendingTransactionsRequest
+import club.pengubank.mobile.bluetooth.models.messages.UpdatePendingTransactionRequest
+import club.pengubank.mobile.bluetooth.models.messages.UpdatePendingTransactionResponse
+import club.pengubank.mobile.security.SignatureConnectionHandler
+import javax.crypto.SecretKey
+
+class BluetoothCommunicationService(
+    private val secretKey: SecretKey,
+    socket: BluetoothSocket,
+    securityConnection: SignatureConnectionHandler,
+    //private val bluetoothConnectionController: BluetoothConnectionController
+) :
+    BluetoothService(socket, securityConnection) {
+
+    init {
+        while(true) {
+            try {
+                when (val request = receiveAndDecipherMessage(secretKey)) {
+                    is RetrievePendingTransactionsRequest -> handleRetrievePendingTransaction()
+                    is UpdatePendingTransactionRequest -> handleUpdatePendingTransaction(request)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                cipherAndSendMessage(secretKey, ErrorResponse(e.message ?: "An error occurred."))
+            }
+        }
+    }
+
+    private fun handleUpdatePendingTransaction(request: UpdatePendingTransactionRequest) {
+        try {
+            bluetoothConnectionController.updateTransaction(request.id, request.signedToken, request.type)
+            cipherAndSendMessage(secretKey, UpdatePendingTransactionResponse(true))
+        } catch (e: Exception) {
+            cipherAndSendMessage(secretKey, UpdatePendingTransactionResponse(false, e.message))
+        }
+    }
+
+    private fun handleRetrievePendingTransaction() {
+        bluetoothConnectionController.retrievePendingTransactions()
+    }
+}

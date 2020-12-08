@@ -1,5 +1,6 @@
 package club.pengubank.mobile.services
 
+import club.pengubank.mobile.states.LoginScreenState
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.storage.UserDataService
 
@@ -18,4 +19,8 @@ class LoginService(
     val email: String get() = store.email
 
     fun logout() = store.logout()
+    fun loginBiometric() {
+        // TODO decipher totp secret key
+        store.loggedIn = true
+    }
 }

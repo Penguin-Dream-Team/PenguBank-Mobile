@@ -4,7 +4,6 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import club.pengubank.mobile.errors.PenguBankAPIException
 import club.pengubank.mobile.services.LoginService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -25,6 +24,10 @@ class LoginScreenState(private val loginService: LoginService) {
             LoginState.Error("The passcode provided does not match the stored records")
     }
 
+    fun biometricLogin() = GlobalScope.launch(Dispatchers.Main) {
+        loginService.loginBiometric()
+        state = LoginState.Success
+    }
 
     sealed class LoginState {
         object Success : LoginState()

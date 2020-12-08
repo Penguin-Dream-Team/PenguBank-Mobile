@@ -10,8 +10,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.InternalInteropApi
 import androidx.navigation.NavController
 import club.pengubank.mobile.states.StoreState
-import club.pengubank.mobile.views.dashboard.partials.totp.TOTPCodeBar
-import club.pengubank.mobile.views.dashboard.partials.totp.TOTPSetupBar
 
 @InternalInteropApi
 @Composable
@@ -29,7 +27,7 @@ fun TOTPSection(navController: NavController, store: StoreState) {
         if(storeState.enabled2FA)
             TOTPCodeBar(storeState)
         else
-            TOTPSetupBar()
+            TOTPSetupBar(navController, storeState)
 
         Divider()
     }

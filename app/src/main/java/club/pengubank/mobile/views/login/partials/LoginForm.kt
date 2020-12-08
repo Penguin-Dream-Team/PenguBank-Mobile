@@ -1,28 +1,29 @@
 package club.pengubank.mobile.views.login.partials
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.text.KeyboardOptions
+import android.os.Build
+import androidx.annotation.RequiresApi
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.Divider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.navigate
 import club.pengubank.mobile.states.LoginScreenState
+import club.pengubank.mobile.utils.biometric.BiometricUtils
 import club.pengubank.mobile.views.shared.PasswordField
 
+@RequiresApi(Build.VERSION_CODES.P)
 @Composable
 fun LoginForm(loginState: LoginScreenState) {
     val state = loginState.state
+
+    if(state == LoginScreenState.LoginState.Empty)
+    // open by default
+    if(BiometricUtils.checkBiometricSupport())
+        BiometricUtils.checkFingerPrint(loginState)
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -42,6 +43,15 @@ fun LoginForm(loginState: LoginScreenState) {
             enabled = state != LoginScreenState.LoginState.Loading
         ) {
             Text("Login")
+        }
+
+        Spacer(modifier = Modifier.padding(vertical = 5.dp))
+
+        Button(
+            onClick = { BiometricUtils.checkFingerPrint(loginState) },
+            enabled = BiometricUtils.checkBiometricSupport()
+        ) {
+            Text("Login with FingerPrint")
         }
 
         if (state is LoginScreenState.LoginState.Error)
