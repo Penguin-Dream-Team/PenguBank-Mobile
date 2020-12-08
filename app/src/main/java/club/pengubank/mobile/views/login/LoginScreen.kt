@@ -20,6 +20,5 @@ fun LoginScreen(navController: NavController, loginService: LoginService) {
         loginService.logout()
 
     LoginForm(loginStoreState)
-
 }
 

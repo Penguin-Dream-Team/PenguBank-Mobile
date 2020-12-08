@@ -24,6 +24,9 @@ class LoginScreenState(private val loginService: LoginService) {
             LoginState.Error("The passcode provided does not match the stored records")
     }
 
+    fun biometricLogin() = GlobalScope.launch(Dispatchers.Main) {
+        state = LoginState.Success
+    }
 
     sealed class LoginState {
         object Success : LoginState()
