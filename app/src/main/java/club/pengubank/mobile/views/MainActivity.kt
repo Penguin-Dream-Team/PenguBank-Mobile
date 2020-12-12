@@ -65,7 +65,7 @@ class MainActivity : AppCompatActivity() {
 
     private var enablingBluetooth = false
 
-    @SuppressLint("RestrictedApi")
+    @SuppressLint("RestrictedApi", "SourceLockedOrientationActivity")
     @RequiresApi(Build.VERSION_CODES.P)
     @InternalInteropApi
     override fun onCreate(savedInstanceState: Bundle?) {
