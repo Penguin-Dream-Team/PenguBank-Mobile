@@ -8,7 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 abstract class SetupScreenState(initialState: SetupState) {
     var state: MutableState<SetupState> = mutableStateOf(initialState)
 
-    open var email: MutableState<String> = mutableStateOf("a@b.c")
+    open var email: MutableState<String> = mutableStateOf("")
 
     sealed class SetupState {
         sealed class InitState : SetupState() {

@@ -6,11 +6,14 @@ import android.app.KeyguardManager
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
+import android.content.pm.ActivityInfo
+import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.ui.graphics.Color
@@ -67,6 +70,8 @@ class MainActivity : AppCompatActivity() {
     @InternalInteropApi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
         val keyGuardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
@@ -139,6 +144,9 @@ class MainActivity : AppCompatActivity() {
 
     override fun onPause() {
         super.onPause()
+
+        if (enablingBluetooth)
+            return
 
         if (storeState.loggedIn)
             storeState.logout()

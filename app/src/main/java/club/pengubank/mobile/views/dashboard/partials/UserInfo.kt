@@ -30,7 +30,7 @@ fun UserInfo(store: StoreState) {
 
         Text(
             store.email,
-            fontSize = 32.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )

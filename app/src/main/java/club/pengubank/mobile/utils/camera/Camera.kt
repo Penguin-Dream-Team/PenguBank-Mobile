@@ -10,15 +10,22 @@ import android.view.LayoutInflater
 import androidx.camera.core.*
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ContextAmbient
 import androidx.compose.ui.platform.LifecycleOwnerAmbient
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.navigate
+import club.pengubank.mobile.R
 import club.pengubank.mobile.bluetooth.Client
 import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.states.StoreState
@@ -28,7 +35,6 @@ import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import io.ktor.http.*
 import io.ktor.util.*
-import java.lang.RuntimeException
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
@@ -85,21 +91,36 @@ class Camera {
         val context = ContextAmbient.current
         val cameraProviderFuture = remember { ProcessCameraProvider.getInstance(context) }
 
-        AndroidView({
-            LayoutInflater.from(it).inflate(club.pengubank.mobile.R.layout.camera_host, null)
-        }) { inflatedLayout ->
-            cameraProviderFuture.addListener({
-                val cameraProvider = cameraProviderFuture.get()
-                bindAnalysis(
-                    lifecycleOwner,
-                    inflatedLayout as PreviewView,
-                    cameraProvider,
-                    navController,
-                    storeState,
-                    setupService,
-                    context
-                )
-            }, ContextCompat.getMainExecutor(context))
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+
+            Text(
+                text = "Scan QR Code to ${if (storeState.operation == "TOTP") "activate 2FA" else "connect to desktop"}",
+                fontWeight = FontWeight.SemiBold,
+                fontSize = 18.sp,
+                modifier = Modifier.padding(vertical = 32.dp)
+            )
+
+            Spacer(modifier = Modifier.preferredHeight(32.dp))
+
+            AndroidView(viewBlock = {
+                LayoutInflater.from(it).inflate(R.layout.camera_host, null)
+            }) { inflatedLayout ->
+                cameraProviderFuture.addListener({
+                    val cameraProvider = cameraProviderFuture.get()
+                    bindAnalysis(
+                        lifecycleOwner,
+                        inflatedLayout as PreviewView,
+                        cameraProvider,
+                        navController,
+                        storeState,
+                        setupService,
+                        context
+                    )
+                }, ContextCompat.getMainExecutor(context))
+            }
         }
     }
 
@@ -121,7 +142,7 @@ class Camera {
 
         preview.setSurfaceProvider(previewView.createSurfaceProvider())
 
-        val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+        cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
 
         val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient()
         if (analysisUseCase != null) {

@@ -16,8 +16,8 @@ class SetupPasscodeScreenState(
     private val setupService: SetupService
 ) : SetupScreenState(SetupState.PasscodeState.Empty) {
 
-    var passcode: MutableState<String> = mutableStateOf("123456")
-    var passcodeConfirm: MutableState<String> = mutableStateOf("123456")
+    var passcode: MutableState<String> = mutableStateOf("")
+    var passcodeConfirm: MutableState<String> = mutableStateOf("")
 
     fun registerPasscode() = GlobalScope.launch(Dispatchers.Main) {
         state.value = SetupState.PasscodeState.Loading

@@ -9,6 +9,6 @@ data class Config(
     val timeout: Long
 ) {
     companion object {
-        fun load() = ConfigLoader().loadConfigOrThrow<Config>("/api_config.json.dev")
+        fun load() = ConfigLoader().loadConfigOrThrow<Config>("/api_config.json")
     }
 }

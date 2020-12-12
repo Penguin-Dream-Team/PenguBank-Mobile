@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 class SetupInitScreenState(private val setupService: SetupService) :
     SetupScreenState(SetupState.InitState.Empty) {
 
-    var password: MutableState<String> = mutableStateOf("password")
+    var password: MutableState<String> = mutableStateOf("")
 
     fun login() = GlobalScope.launch(Dispatchers.Main) {
         state.value = SetupState.InitState.Loading
