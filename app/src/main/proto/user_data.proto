@@ -7,4 +7,6 @@ message UserData {
   string email = 1;
   string passcode = 2;
   string totp_key = 3;
+  string signature = 4;
+  string iv = 5;
 }

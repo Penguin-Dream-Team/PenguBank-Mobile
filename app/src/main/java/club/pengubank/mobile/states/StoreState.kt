@@ -32,12 +32,10 @@ class StoreState(private val userDataService: UserDataService) {
     var email: String = ""
         get() = runBlocking { userDataService.getUserData().email }
 
-    val enabled2FA: Boolean
-        get() = runBlocking { userDataService.getUserData().totpKey.isNullOrBlank().not() }
+    var enabled2FA: Boolean = runBlocking { userDataService.getUserData().totpKey.isNullOrBlank().not() }
 
     val hasPerformedSetup: Boolean
         get() = runBlocking { userDataService.getUserData().passcode.isNullOrBlank().not() }
 
-    val totpSecretKey: String
-        get() = runBlocking { userDataService.getUserData().totpKey }
+    var totpSecretKey: String = runBlocking { userDataService.getUserData().totpKey }
 }

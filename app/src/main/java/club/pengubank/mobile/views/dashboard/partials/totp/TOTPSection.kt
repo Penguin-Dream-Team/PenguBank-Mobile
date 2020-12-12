@@ -15,6 +15,7 @@ import club.pengubank.mobile.states.StoreState
 @Composable
 fun TOTPSection(navController: NavController, store: StoreState) {
     val storeState by remember { mutableStateOf(store) }
+    val enabled2FA by remember { mutableStateOf(store.enabled2FA) }
 
     Column(modifier = Modifier.padding(horizontal = 24.dp)) {
         Text(
@@ -24,12 +25,12 @@ fun TOTPSection(navController: NavController, store: StoreState) {
             modifier = Modifier.padding(vertical = 6.dp)
         )
 
-        if(storeState.enabled2FA)
+        if (enabled2FA)
             TOTPCodeBar(storeState)
         else
             TOTPSetupBar(navController, storeState)
 
-        Divider()
+        Divider(modifier = Modifier.padding(top = 6.dp))
     }
 }
 

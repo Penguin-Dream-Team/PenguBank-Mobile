@@ -1,30 +1,37 @@
 package club.pengubank.mobile.views
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.app.KeyguardManager
 import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.viewinterop.InternalInteropApi
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.navigate
 import androidx.navigation.compose.rememberNavController
+import club.pengubank.mobile.R
 import club.pengubank.mobile.security.SecurityUtils
 import club.pengubank.mobile.services.LoginService
 import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.storage.UserDataService
+import club.pengubank.mobile.theme.PenguBankTheme
 import club.pengubank.mobile.utils.biometric.BiometricUtils
 import club.pengubank.mobile.utils.camera.Camera
 import club.pengubank.mobile.views.dashboard.DashboardScreen
@@ -51,8 +58,11 @@ class MainActivity : AppCompatActivity() {
     @Inject
     lateinit var storeState: StoreState
 
-    private lateinit var navController: NavHostController
+    private var navController: NavHostController? = null
 
+    private var enablingBluetooth = false
+
+    @SuppressLint("RestrictedApi")
     @RequiresApi(Build.VERSION_CODES.P)
     @InternalInteropApi
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -61,26 +71,49 @@ class MainActivity : AppCompatActivity() {
         val keyGuardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
 
         SecurityUtils.init()
-        BiometricUtils.init(this, mainExecutor, keyGuardManager)
+        BiometricUtils.init(applicationContext, mainExecutor, keyGuardManager)
+
+        val startDestination = if (storeState.hasPerformedSetup) "login" else "setup"
+
+        requestPermission(Manifest.permission.CAMERA)
+        requestPermission(Manifest.permission.BLUETOOTH)
+        requestPermission(Manifest.permission.BLUETOOTH_ADMIN)
 
         setContent {
-            navController = rememberNavController()
-            val startDestination = if (storeState.hasPerformedSetup) "login" else "setup"
-            if (PermissionChecker.checkSelfPermission(
-                    applicationContext,
-                    Manifest.permission.CAMERA
-                ) != PermissionChecker.PERMISSION_GRANTED
-            ) {
-                ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 100)
-            }
+            val navController = rememberNavController()
+            this.navController = navController
 
-            MaterialTheme {
+            PenguBankTheme {
                 Scaffold(topBar = { TopBar(navController, storeState) }) {
                     NavHost(navController = navController, startDestination = startDestination) {
-                        composable("setup") { SetupScreen(navController, setupService) }
+                        if (!storeState.hasPerformedSetup) {
+                            composable("setup") {
+                                window.statusBarColor = ContextCompat.getColor(
+                                    applicationContext,
+                                    R.color.statusBarDark
+                                )
+                                navController.backStack.clear()
+                                SetupScreen(navController, setupService)
+                            }
+                        }
 
-                        composable("login") { LoginScreen(navController, loginService) }
+                        var loginEntry: NavBackStackEntry? = null
+
+                        composable("login") {
+                            loginEntry = it
+                            window.statusBarColor =
+                                ContextCompat.getColor(applicationContext, R.color.statusBarDark)
+                            navController.backStack.clear()
+                            navController.backStack.push(it)
+                            LoginScreen(navController, loginService)
+                        }
+
                         composable("dashboard") {
+                            window.statusBarColor =
+                                ContextCompat.getColor(applicationContext, R.color.statusBarLight)
+
+                            navController.backStack.push(loginEntry!!)
+
                             DashboardScreen(
                                 navController,
                                 storeState,
@@ -90,6 +123,8 @@ class MainActivity : AppCompatActivity() {
                         }
 
                         composable("camera") {
+                            window.statusBarColor =
+                                ContextCompat.getColor(applicationContext, R.color.statusBarDark)
                             Camera().SimpleCameraPreview(
                                 navController,
                                 storeState,
@@ -102,19 +137,49 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+
+        if (storeState.loggedIn)
+            storeState.logout()
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        if (enablingBluetooth) {
+            enablingBluetooth = false
+            return
+        }
+
+        if (storeState.loggedIn)
+            storeState.logout()
+        if (storeState.hasPerformedSetup)
+            navController?.navigate("login")
+        else
+            navController?.navigate("setup")
+    }
+
     private fun requestBluetooth() {
+        enablingBluetooth = true
         startActivityForResult(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE), 1)
     }
 
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
         if (BluetoothAdapter.getDefaultAdapter().isEnabled) {
             storeState.operation = "QRCode"
-            navController.navigate("camera")
+            navController?.navigate("camera")
         }
-        super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun requestPermission(permission: String) {
+        if (PermissionChecker.checkSelfPermission(
+                applicationContext,
+                permission
+            ) != PermissionChecker.PERMISSION_GRANTED
+        ) {
+            ActivityCompat.requestPermissions(this, arrayOf(permission), 100)
+        }
     }
 }
-
-
-

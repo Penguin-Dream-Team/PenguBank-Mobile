@@ -43,7 +43,6 @@ fun QRCodeScan(navController: NavController, storeState: StoreState, requestBlue
             Text(
                 text = "Scan QR Code",
                 textAlign = TextAlign.Center,
-                fontSize = 20.sp,
             )
         }
     }

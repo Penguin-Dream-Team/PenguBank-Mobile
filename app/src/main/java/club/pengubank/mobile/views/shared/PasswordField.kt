@@ -18,5 +18,5 @@ fun PasswordField(
         label = label,
         icon = Icons.Outlined.Lock,
         visualTransformation = PasswordVisualTransformation(),
-        keyboardType = if(isNumber) KeyboardType.NumberPassword else KeyboardType.Password
+        keyboardType = if(isNumber) KeyboardType.NumberPassword else KeyboardType.Password,
     )

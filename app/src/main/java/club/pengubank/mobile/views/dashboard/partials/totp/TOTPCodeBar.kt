@@ -35,7 +35,6 @@ private fun genCode(storeState: StoreState): String {
 val TIME_WINDOW = Duration(seconds = 30).inMilliseconds()
 
 class CodeTask(
-    private val mainHandler: Handler,
     private val progress: MutableState<Long>,
     private val code: MutableState<String>,
     private val storeState: StoreState
@@ -86,7 +85,7 @@ fun TOTPCodeBar(store: StoreState) {
             modifier = Modifier.weight(2.0f, true)
         )
 
-        mainHandler.postDelayed(CodeTask(mainHandler, progress, code, store), 50L)
+        mainHandler.postDelayed(CodeTask(progress, code, store), 50L)
         ProgressCircle(progress = progress.value.toFloat())
     }
 }

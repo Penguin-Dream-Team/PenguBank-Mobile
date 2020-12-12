@@ -14,12 +14,16 @@ class LoginScreenState(private val loginService: LoginService) {
     var state: LoginState by mutableStateOf(LoginState.Empty)
 
     val email: String = loginService.email
-    var passcode: MutableState<String> = mutableStateOf("passcode123")
+    var passcode: MutableState<String> = mutableStateOf("")
+
+    var fingerprintAttempts by mutableStateOf(0)
 
     fun login() = GlobalScope.launch(Dispatchers.Main) {
         state = LoginState.Loading
-        state = if (loginService.login(passcode.value))
+        state = if (loginService.login(passcode.value)) {
+            fingerprintAttempts = 0
             LoginState.Success
+        }
         else
             LoginState.Error("The passcode provided does not match the stored records")
     }
@@ -27,6 +31,7 @@ class LoginScreenState(private val loginService: LoginService) {
     fun biometricLogin() = GlobalScope.launch(Dispatchers.Main) {
         loginService.loginBiometric()
         state = LoginState.Success
+        fingerprintAttempts = 0
     }
 
     sealed class LoginState {

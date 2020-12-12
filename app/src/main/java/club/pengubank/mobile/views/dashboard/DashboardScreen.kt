@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.preferredHeight
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -24,8 +25,11 @@ fun DashboardScreen(navController: NavController, store: StoreState, requestBlue
 
     Column {
         UserInfo(storeState)
+
         TOTPSection(navController, storeState)
-        Spacer(modifier = Modifier.padding(10.dp))
+
+        Spacer(modifier = Modifier.preferredHeight(32.dp))
+
         TransactionSection(navController, storeState, requestBluetooth, context)
     }
 }

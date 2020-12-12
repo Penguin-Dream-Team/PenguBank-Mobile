@@ -1,12 +1,16 @@
 package club.pengubank.mobile.views.shared
 
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.Icon
+import androidx.compose.material.OutlinedTextField
 import androidx.compose.material.Text
-import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.VectorAsset
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.VisualTransformation
 
@@ -18,7 +22,7 @@ fun LabeledTextField(
     keyboardType: KeyboardType = KeyboardType.Text,
     icon: VectorAsset? = null
 ) =
-    TextField(
+    OutlinedTextField(
         value = value.value,
         onValueChange = { value.value = it },
         label = { Text(label) },
@@ -26,5 +30,8 @@ fun LabeledTextField(
         visualTransformation = visualTransformation,
         keyboardOptions = KeyboardOptions(
             keyboardType = keyboardType
-        )
+        ),
+        maxLines = 1,
+        modifier = Modifier.fillMaxWidth(),
+        textStyle = TextStyle(color = Color.White)
     )

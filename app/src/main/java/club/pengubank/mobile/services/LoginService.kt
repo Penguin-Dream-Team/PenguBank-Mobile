@@ -1,6 +1,6 @@
 package club.pengubank.mobile.services
 
-import club.pengubank.mobile.states.LoginScreenState
+import club.pengubank.mobile.security.BCrypt
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.storage.UserDataService
 
@@ -10,8 +10,7 @@ class LoginService(
 ) {
 
     suspend fun login(passcode: String): Boolean {
-        // TODO("USE BCRYPT AND DECRYPT")
-        val result = userDataService.getUserData().passcode == passcode
+        val result = BCrypt.checkpw(passcode, userDataService.getUserData().passcode)
         store.loggedIn = result
         return result
     }
@@ -20,7 +19,6 @@ class LoginService(
 
     fun logout() = store.logout()
     fun loginBiometric() {
-        // TODO decipher totp secret key
         store.loggedIn = true
     }
 }

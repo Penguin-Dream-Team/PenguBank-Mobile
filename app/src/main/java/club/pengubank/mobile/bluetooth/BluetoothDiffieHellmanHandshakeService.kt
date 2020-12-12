@@ -1,17 +1,18 @@
 package club.pengubank.mobile.bluetooth
 
-import android.bluetooth.BluetoothSocket
 import club.pengubank.mobile.bluetooth.models.messages.DiffieHellmanInitRequestMessage
 import club.pengubank.mobile.bluetooth.models.messages.DiffieHellmanInitResponseMessage
 import club.pengubank.mobile.errors.BluetoothMessageSignatureFailedException
 import club.pengubank.mobile.security.DiffieHellmanUtils
 import club.pengubank.mobile.security.SignatureConnectionHandler
+import java.io.DataInputStream
+import java.io.DataOutputStream
 import javax.crypto.SecretKey
 
 class BluetoothDiffieHellmanHandshakeService(
-    connection: BluetoothSocket,
+    inputStream: DataInputStream, outputStream: DataOutputStream,
     securityConnection: SignatureConnectionHandler,
-) : BluetoothService(connection, securityConnection) {
+) : BluetoothService(inputStream, outputStream, securityConnection) {
 
     lateinit var secretKey: SecretKey
 

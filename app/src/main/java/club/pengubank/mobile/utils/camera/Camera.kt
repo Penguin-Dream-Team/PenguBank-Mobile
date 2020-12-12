@@ -23,34 +23,30 @@ import club.pengubank.mobile.bluetooth.Client
 import club.pengubank.mobile.services.SetupService
 import club.pengubank.mobile.states.StoreState
 import club.pengubank.mobile.utils.Toasts
-import club.pengubank.mobile.views.MainActivity
 import com.google.mlkit.vision.barcode.BarcodeScanner
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.common.InputImage
 import io.ktor.http.*
 import io.ktor.util.*
+import java.lang.RuntimeException
 import java.util.concurrent.Executors
 import kotlin.math.abs
 import kotlin.math.max
 import kotlin.math.min
 
-class Camera() {
+@KtorExperimentalAPI
+class Camera {
 
     private var previewView: PreviewView? = null
-    private var cameraProvider: ProcessCameraProvider? = null
-    private var cameraSelector: CameraSelector? = null
-    private var lensFacing = CameraSelector.LENS_FACING_BACK
-    private var previewUseCase: Preview? = null
     private var analysisUseCase: ImageAnalysis? = null
 
     companion object {
-        @KtorExperimentalAPI
-        private val TAG = MainActivity::class.java.simpleName
-        private const val PERMISSION_CAMERA_REQUEST = 1
 
         private const val RATIO_4_3_VALUE = 4.0 / 3.0
         private const val RATIO_16_9_VALUE = 16.0 / 9.0
     }
+
+    private var toastTimeout: Int = -1
 
     private val screenAspectRatio: Int
         get() {
@@ -78,7 +74,7 @@ class Camera() {
         return AspectRatio.RATIO_16_9
     }
 
-    @SuppressLint("InflateParams", "WrongConstant")
+    @SuppressLint("InflateParams")
     @Composable
     fun SimpleCameraPreview(
         navController: NavHostController,
@@ -92,7 +88,7 @@ class Camera() {
         AndroidView({
             LayoutInflater.from(it).inflate(club.pengubank.mobile.R.layout.camera_host, null)
         }) { inflatedLayout ->
-            cameraProviderFuture.addListener(Runnable {
+            cameraProviderFuture.addListener({
                 val cameraProvider = cameraProviderFuture.get()
                 bindAnalysis(
                     lifecycleOwner,
@@ -107,6 +103,7 @@ class Camera() {
         }
     }
 
+    @KtorExperimentalAPI
     private fun bindAnalysis(
         lifecycleOwner: LifecycleOwner,
         previewView: PreviewView,
@@ -124,7 +121,8 @@ class Camera() {
 
         preview.setSurfaceProvider(previewView.createSurfaceProvider())
 
-        var camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+        val camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
+
         val barcodeScanner: BarcodeScanner = BarcodeScanning.getClient()
         if (analysisUseCase != null) {
             cameraProvider.unbind(analysisUseCase)
@@ -136,8 +134,15 @@ class Camera() {
             .build()
         val cameraExecutor = Executors.newSingleThreadExecutor()
 
-        analysisUseCase?.setAnalyzer(cameraExecutor, ImageAnalysis.Analyzer { imageProxy ->
-            processImageProxy(barcodeScanner, imageProxy, navController, storeState, setupService, context)
+        analysisUseCase?.setAnalyzer(cameraExecutor, { imageProxy ->
+            processImageProxy(
+                barcodeScanner,
+                imageProxy,
+                navController,
+                storeState,
+                setupService,
+                context
+            )
         })
 
         try {
@@ -163,48 +168,50 @@ class Camera() {
             InputImage.fromMediaImage(imageProxy.image!!, imageProxy.imageInfo.rotationDegrees)
 
         barcodeScanner.process(inputImage)
-            .addOnSuccessListener  { barcodes ->
+            .addOnSuccessListener { barcodes ->
                 barcodes.forEach { barcode ->
                     barcode.rawValue?.let {
-                        imageProxy.close()
+                        val parameters = URLBuilder(it).parameters
 
-                        if (store.operation == "QRCode") {
+                        if (store.operation == "QRCode" &&
+                            parameters.contains(encode("bluetoothMac")) &&
+                            parameters.contains(encode("kPub"))
+                        ) {
+                            store.bluetoothMac = parameters[encode("bluetoothMac")].toString()
+                            store.kPub = parameters[encode("kPub")].toString()
                             store.qrcodeScanned = true
-                            store.bluetoothMac = URLBuilder(it).parameters[encode("bluetoothMac")].toString()
-                            store.kPub = URLBuilder(it).parameters[encode("kPub")].toString()
-                            if(store.client == null) {
+                            if (store.client == null) {
                                 store.client = Client(store)
                                 store.client!!.start()
                                 store.client!!.refreshPendingTransactions()
                                 Toasts.notifyUser(context, "Refreshed pending transactions")
                             }
+                            imageProxy.close()
+                            barcodeScanner.close()
+                            navController.backStack.clear()
+                            navController.navigate("dashboard")
+                        } else if (store.operation == "TOTP" && parameters.contains(encode("secret"))) {
+                            setupService.registerTOTP(parameters[encode("secret")].toString())
+                            imageProxy.close()
+                            barcodeScanner.close()
+                            navController.backStack.clear()
+                            navController.navigate("dashboard")
                         } else {
-                            setupService.registerTOTP(URLBuilder(it).parameters[encode("secret")].toString())
+                            // not correct qr code
+                            store.qrcodeScanned = false
+                            store.client?.close()
+                            store.client = null
+                            if (toastTimeout < 0) {
+                                Toasts.notifyUser(context, "Invalid QRCode")
+                                toastTimeout = 60 // TO AVOID SPAMMING TOASTS
+                            }
                         }
-
-                        navController.backStack.clear()
-                        navController.navigate("dashboard")
+                        if (toastTimeout >= 0)
+                            toastTimeout -= 1
                     }
                 }
-            }
-            .addOnFailureListener { }.addOnCompleteListener {
+            }.addOnCompleteListener {
                 imageProxy.close()
             }
-    }
-
-    fun bindPreview(
-        lifecycleOwner: LifecycleOwner,
-        previewView: PreviewView,
-        cameraProvider: ProcessCameraProvider
-    ) {
-        val preview: Preview = Preview.Builder().build()
-
-        val cameraSelector: CameraSelector = CameraSelector.Builder()
-            .requireLensFacing(CameraSelector.LENS_FACING_BACK)
-            .build()
-
-        preview.setSurfaceProvider(previewView.createSurfaceProvider())
-
-        var camera = cameraProvider.bindToLifecycle(lifecycleOwner, cameraSelector, preview)
     }
 }

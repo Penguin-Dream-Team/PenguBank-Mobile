@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.hardware.biometrics.BiometricPrompt
 import android.os.Build
 import android.os.CancellationSignal
+import android.util.Log
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
@@ -19,13 +20,28 @@ object BiometricUtils {
     private lateinit var keyGuardManager: KeyguardManager
     private lateinit var cancellationSignal: CancellationSignal
     private lateinit var loginState: LoginScreenState
+    private lateinit var biometricPrompt: BiometricPrompt
+    const val MAX_ATTEMPTS = 3
+
     private val authenticationCallback: BiometricPrompt.AuthenticationCallback
         get() =
             @RequiresApi(Build.VERSION_CODES.P)
             object : BiometricPrompt.AuthenticationCallback() {
+
                 override fun onAuthenticationError(errorCode: Int, errString: CharSequence?) {
                     super.onAuthenticationError(errorCode, errString)
-                    notifyUser("Authentication error: $errString")
+
+                    if(loginState.fingerprintAttempts >= MAX_ATTEMPTS)
+                        notifyUser("Failed after 3 attempts. Insert passcode")
+                }
+
+                override fun onAuthenticationFailed() {
+                    super.onAuthenticationFailed()
+                    loginState.fingerprintAttempts++
+
+                    if (loginState.fingerprintAttempts >= MAX_ATTEMPTS) {
+                        cancellationSignal.cancel()
+                    }
                 }
 
                 override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult?) {
@@ -47,7 +63,11 @@ object BiometricUtils {
             return false
         }
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.USE_BIOMETRIC) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.USE_BIOMETRIC
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
             notifyUser("Fingerprint authentication permission is not enabled")
             return false
         }
@@ -57,9 +77,14 @@ object BiometricUtils {
 
     @RequiresApi(Build.VERSION_CODES.P)
     fun checkFingerPrint(state: LoginScreenState) {
+        if (state.fingerprintAttempts >= MAX_ATTEMPTS) {
+            notifyUser("Failed after 3 attempts. Insert passcode")
+            return
+        }
+
         loginState = state
-        val biometricPrompt = BiometricPrompt.Builder(context)
-            .setTitle("Entering ultra secret penguin igloo")
+        biometricPrompt = BiometricPrompt.Builder(context)
+            .setTitle("Login using your fingerprint")
             .setSubtitle("Authentication is required")
             .setDescription("This app uses fingerprint protection to keep your data secure")
             .setNegativeButton("Cancel", executor, { _, _ ->
@@ -75,7 +100,8 @@ object BiometricUtils {
     private fun getCancellationSignal(): CancellationSignal {
         cancellationSignal = CancellationSignal()
         cancellationSignal.setOnCancelListener {
-            notifyUser("Authentication was cancelled by the user")
+            if (loginState.fingerprintAttempts < MAX_ATTEMPTS)
+                notifyUser("Authentication was cancelled by the user")
         }
 
         return cancellationSignal

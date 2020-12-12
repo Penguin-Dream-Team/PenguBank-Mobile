@@ -34,8 +34,7 @@ fun TOTPSetupBar(navController: NavController, storeState: StoreState) {
         ) {
             Text(
                 text = "Activate 2FA",
-                textAlign = TextAlign.Center,
-                fontSize = 20.sp,
+                textAlign = TextAlign.Center
             )
         }
     }

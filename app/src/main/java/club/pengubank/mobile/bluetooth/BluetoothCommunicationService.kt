@@ -6,14 +6,16 @@ import club.pengubank.mobile.bluetooth.models.Response
 import club.pengubank.mobile.bluetooth.models.messages.*
 import club.pengubank.mobile.errors.BluetoothErrorResponseException
 import club.pengubank.mobile.security.SignatureConnectionHandler
+import java.io.DataInputStream
+import java.io.DataOutputStream
 import java.time.Instant
 import javax.crypto.SecretKey
 
 class BluetoothCommunicationService(
-    socket: BluetoothSocket,
+    inputStream: DataInputStream, outputStream: DataOutputStream,
     private val signatureConnectionHandler: SignatureConnectionHandler,
     private val secretKey: SecretKey
-) : BluetoothService(socket, signatureConnectionHandler) {
+) : BluetoothService(inputStream, outputStream, signatureConnectionHandler) {
 
     private val usedNonces = mutableListOf<Long>()
 
