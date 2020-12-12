@@ -1,6 +1,5 @@
 package club.pengubank.mobile.storage
 
-import android.util.Log
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
 import club.pengubank.mobile.bluetooth.models.JSONObject
@@ -9,13 +8,18 @@ import club.pengubank.mobile.security.SecurityUtils
 import club.pengubank.mobile.storage.protos.UserData
 import com.google.gson.Gson
 import com.google.protobuf.InvalidProtocolBufferException
-import java.io.*
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.InputStream
+import java.io.OutputStream
 
 object UserDataSerializer : Serializer<UserData> {
     override val defaultValue: UserData = UserData.getDefaultInstance()
 
     override fun readFrom(input: InputStream): UserData =
         try {
+            SecurityUtils.init()
+
             val secretKey = SecurityUtils.getSecretKey()
             val publicKey = SecurityUtils.getPublicKey()
 

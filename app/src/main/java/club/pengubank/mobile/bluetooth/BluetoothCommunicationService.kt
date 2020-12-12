@@ -1,9 +1,10 @@
 package club.pengubank.mobile.bluetooth
 
-import android.bluetooth.BluetoothSocket
-import android.util.Log
 import club.pengubank.mobile.bluetooth.models.Response
-import club.pengubank.mobile.bluetooth.models.messages.*
+import club.pengubank.mobile.bluetooth.models.messages.PendingTransaction
+import club.pengubank.mobile.bluetooth.models.messages.PendingTransactionOperation
+import club.pengubank.mobile.bluetooth.models.messages.RetrievePendingTransactionsRequest
+import club.pengubank.mobile.bluetooth.models.messages.UpdatePendingTransactionRequest
 import club.pengubank.mobile.errors.BluetoothErrorResponseException
 import club.pengubank.mobile.security.SignatureConnectionHandler
 import java.io.DataInputStream

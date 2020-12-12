@@ -1,0 +1,6 @@
+{
+  "protocol": "https",
+  "host": "pengubank.club",
+  "port": 80,
+  "timeout": 3000
+}
