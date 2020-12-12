@@ -7,16 +7,11 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.graphics.drawable.GradientDrawable
 import android.os.Build
 import android.os.Bundle
-import androidx.activity.OnBackPressedDispatcher
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.LinearLayoutCompat
-import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.setContent
 import androidx.compose.ui.viewinterop.InternalInteropApi
 import androidx.core.app.ActivityCompat
